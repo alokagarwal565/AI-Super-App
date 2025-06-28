@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Super App</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Roboto", sans-serif;
+        background: linear-gradient(180deg, #0b0d17 0%, #1c1f2e 100%);
+        color: #fff;
+        text-align: center;
+      }
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 30px;
+        background-color: rgba(11, 13, 23, 0.85);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      }
+      .navbar .logo {
+        font-size: 28px;
+        font-weight: bold;
+        color: #a259ff;
+      }
+      .navbar .menu {
+        display: flex;
+        gap: 30px;
+      }
+      .navbar .menu a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 16px;
+        position: relative;
+      }
+      .navbar .menu a::after {
+        content: "";
+        display: block;
+        height: 2px;
+        background: #a259ff;
+        width: 0;
+        transition: width 0.3s;
+        position: absolute;
+        bottom: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .navbar .menu a:hover::after {
+        width: 100%;
+      }
+      .header {
+        padding: 120px 20px;
+      }
+      .header h1 {
+        font-size: 64px;
+        background: linear-gradient(90deg, #a259ff, #0acf83, #2d9cdb);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+      }
+      .header h2 {
+        font-size: 28px;
+        margin: 15px 0;
+        letter-spacing: 1px;
+      }
+      .header p {
+        font-size: 20px;
+        max-width: 700px;
+        margin: 0 auto 40px;
+        line-height: 1.6;
+        opacity: 0.9;
+      }
+      .header .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+      }
+      .header .buttons a {
+        padding: 12px 25px;
+        border: 2px solid #a259ff;
+        border-radius: 30px;
+        color: #a259ff;
+        text-decoration: none;
+        font-size: 18px;
+        background-color: transparent;
+        transition: all 0.3s;
+      }
+      .header .buttons a:hover {
+        background-color: #a259ff;
+        color: #0b0d17;
+      }
+      footer {
+        margin-top: 50px;
+        padding: 20px;
+        background-color: rgba(11, 13, 23, 0.85);
+      }
+      footer p {
+        font-size: 16px;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="logo">AI Super App</div>
+      <div class="menu">
+        <a href="register">Sign Up</a>
+        <a href="login">Log In</a>
+        <a href="pricing">Try Premium</a>
+        <a href="#"><i class="fas fa-bell"></i></a>
+        <a href="#"><i class="fas fa-bars"></i></a>
+      </div>
+    </div>
+    <div class="header">
+      <h2>Unleash Your Imagination</h2>
+      <h1>Transform Your Ideas with AI</h1>
+      <h2>AI-Powered Image Generation and Intelligent Chatbot</h2>
+      <p>
+        Discover a comprehensive suite for all your creative photo and design
+        editing needs. Access powerful tools directly from your web browser,
+        smartphone, or desktop—completely free. The only limit is your
+        imagination!
+      </p>
+      <div class="buttons">
+        <a href="dashboard">Explore AI Image Generator</a>
+        <a href="gen_video">Explore AI Video Generator</a>
+        <div class="buttons">
+          <a href="#" onclick="startChatbot()">Try Our AI Chatbot</a>
+        </div>
+
+        <script>
+          function startChatbot() {
+            <!--
+            setTimeout(() => {
+              const chatbotUrl = "http://localhost:5173/";
+              window.open(chatbotUrl, "_blank");
+            }, 3000);
+            -->
+
+            // Open the chatbot in a new tab immediately
+            const chatbotUrl = "http://localhost:5173/";
+            window.open(chatbotUrl, "_blank");
+
+            // Make the fetch request to start the chatbot
+            fetch("/start_chatbot")
+              .then((response) => {
+                // Check if the response is okay
+                if (!response.ok) {
+                  throw new Error("Network response was not ok");
+                }
+                return response.json();
+              })
+              .then((data) => {
+                if (data.status !== "success") {
+                  console.error("Failed to start the chatbot:", data.message);
+                  alert("Failed to start the chatbot. Please try again.");
+                }
+              })
+              .catch((error) => {
+                console.error("Error starting chatbot:", error);
+                alert("There was an error starting the chatbot.");
+              });
+          }
+        </script>
+      </div>
+    </div>
+    <footer>
+      <p>&copy; 2024 AI Super App. All rights reserved.</p>
+    </footer>
+  </body>
+</html>

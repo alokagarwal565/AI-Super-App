@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Gallery container styling */
+        .gallery-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 40px;
+            position: relative; /* Positioning context */
+            padding-bottom: 60px; /* Space for bottom elements */
+            gap: 20px; /* Add consistent spacing */
+            max-width: 1200px; /* Limit container width for better layout */
+            margin-left: auto; /* Center the container */
+            margin-right: auto;
+        }
+        
+        /* Image box styling */
+        .image-box {
+            background-color: #1a2233; /* Match global theme */
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+            border-radius: 12px; /* Match button and other elements */
+            overflow: hidden; /* Clip overflowing content */
+            width: 280px; /* Adjust width for consistency */
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .image-box:hover {
+            transform: translateY(-10px); /* Lift effect */
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3); /* Intense shadow on hover */
+        }
+        
+        .image-box img {
+            width: 100%; /* Full width */
+            height: auto; /* Maintain aspect ratio */
+            display: block; /* Remove extra space */
+            border-bottom: 2px solid #00f6ff; /* Consistent neon accent */
+        }
+
+        .download-btn {
+            padding: 10px; /* Increased padding to match other buttons */
+            margin: 10px 0px; /* Consistent margins */
+            border-radius: 10px; /* Match button border-radius */
+            border: 1px solid #00f6ff; /* Consistent border color */
+            font-size: 16px; /* Match font size */
+            background-color: #00f6ff; /* Primary background color */
+            color: #141a23; /* Text color */
+            font-weight: bold; /* Bold text */
+            cursor: pointer; /* Pointer on hover */
+            text-align: center; /* Align text */
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Ensure proper layout */
+            transition: background-color 0.3s ease; /* Smooth transition */
+        }
+        
+        .download-btn:hover {
+            background-color: #007bff; /* Hover background color */
+        }
+        
+        .back-btn {
+            padding: 15px; /* Increased padding for consistency */
+            margin: 10px auto; /* Center the button with auto margin */
+            border-radius: 10px; /* Match button border-radius */
+            border: 1px solid #00f6ff; /* Consistent border color */
+            font-size: 16px; /* Match font size */
+            background-color: #00f6ff; /* Primary background color */
+            color: #141a23; /* Text color */
+            font-weight: bold; /* Bold text */
+            cursor: pointer; /* Pointer on hover */
+            text-align: center; /* Align text */
+            text-decoration: none; /* Remove underline */
+            display: block; /* Block layout for centering */
+            width: fit-content; /* Adjust width to fit content */
+            transition: background-color 0.3s ease; /* Smooth transition */
+        }
+        
+        .back-btn:hover {
+            background-color: #007bff; /* Hover background color */
+        }        
+
+        /* Empty gallery message */
+        .empty-message {
+            font-size: 1.4rem; /* Increase readability */
+            color: #a2e2ff; /* Softer text tone */
+            margin-top: 20px; /* Add spacing */
+            font-weight: 600; /* Make text slightly bold */
+            text-align: center;
+        }
+
+        /* Global styling */
+        body {
+          background-color: #0a0e17; /* Dark background */
+          color: #d9e0ff; /* Soft white text */
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
+          text-align: center;
+          padding: none;
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+        }
+  
+        /* Navigation Bar */
+        nav {
+          display: flex;
+          justify-content: space-between;
+          padding: 20px;
+          background: linear-gradient(
+            135deg,
+            #1f2933 0%,
+            #141a23 100%
+          ); /* Gradient for futuristic look */
+          border-bottom: 1px solid #00f6ff; /* Neon accent */
+        }
+        nav h1 {
+          color: #00f6ff;
+          font-weight: bold;
+        }
+        nav a {
+          text-decoration: none;
+          color: #00f6ff;
+          font-weight: 600;
+          transition: color 0.3s ease;
+        }
+        nav a:hover {
+          color: #a2e2ff;
+        }
+  
+        /* Container */
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+  
+        /* Inputs and Button */
+        input,
+        button {
+          padding: 15px;
+          margin: 10px 0;
+          border-radius: 10px;
+          border: 1px solid #00f6ff;
+          font-size: 16px;
+          width: 100%;
+          background-color: #1a2233;
+          color: #d9e0ff;
+          transition: all 0.3s;
+        }
+        input:focus,
+        button:focus {
+          outline: none;
+          border-color: #007bff;
+          box-shadow: 0 0 8px rgba(0, 246, 255, 0.5);
+        }
+        button {
+          background-color: #00f6ff;
+          color: #141a23;
+          font-weight: bold;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+        button:hover {
+          background-color: #007bff;
+        }
+  
+        /* Button Styling */
+        .button {
+          padding: 15px;
+          margin: 10px 10px;
+          border-radius: 10px;
+          border: 1px solid #00f6ff;
+          font-size: 16px;
+          width: 150px;
+          background-color: #00f6ff;
+          color: #141a23;
+          font-weight: bold;
+          cursor: pointer;
+          text-align: center;
+          transition: background-color 0.3s ease;
+          text-decoration: none; /* Remove underline for download button */
+          display: inline-block; /* Ensures correct layout for download link */
+        }
+  
+        .button:hover {
+          background-color: #007bff;
+        }
+  
+        /* Button Styling */
+        .action-button {
+          padding: 15px;
+          margin: 10px 10px;
+          border-radius: 10px;
+          border: 1px solid #00f6ff;
+          font-size: 16px;
+          width: 150px;
+          background-color: #00f6ff;
+          color: #141a23;
+          font-weight: bold;
+          cursor: pointer;
+          text-align: center;
+          transition: background-color 0.3s ease;
+          text-decoration: none; /* Remove underline for download button */
+          display: inline-block; /* Ensures correct layout for download link */
+        }
+  
+        .action-button:hover {
+          background-color: #007bff;
+        }
+  
+        /* Loading Animation */
+        #loading {
+          display: none;
+          font-size: 24px;
+          color: #00f6ff;
+        }
+  
+        /* Image Output Styling */
+        img {
+          max-width: 100%;
+          height: auto;
+          border: 2px solid #00f6ff;
+          border-radius: 12px;
+          transition: box-shadow 0.3s;
+        }
+        img:hover {
+          box-shadow: 0 0 15px #00f6ff;
+        }
+  
+        /* Icon Buttons */
+        .icon-button {
+          display: inline-block;
+          padding: 10px;
+          border-radius: 50%;
+          background-color: #00f6ff;
+          color: #0a0e17;
+          margin: 10px;
+          cursor: pointer;
+          text-align: center;
+          width: 40px;
+          height: 40px;
+          line-height: 40px;
+          transition: background-color 0.3s;
+        }
+        .icon-button:hover {
+          background-color: #007bff;
+        }
+  
+        /* Footer Styling */
+        footer {
+          margin-top: 20px;
+          padding: 20px;
+          background-color: #141a23;
+          color: #a2e2ff;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 14px;
+        }
+  
+        footer h2 {
+          font-size: 18px;
+          color: #00f6ff;
+        }
+  
+        .footer-right {
+          display: flex;
+          align-items: center;
+        }
+  
+        .footer-link {
+          color: #00f6ff;
+          text-decoration: none;
+          margin: 0 10px; /* Added margin for spacing between links */
+          transition: color 0.3s;
+        }
+  
+        .footer-link:hover {
+          color: #a2e2ff;
+        }
+  
+        .social-icons {
+          display: flex;
+          align-items: center;
+          margin-left: 10px; /* Space between links and social icons */
+        }
+  
+        .social-icon {
+          color: #a2e2ff;
+          margin: 0 10px;
+          font-size: 18px;
+          transition: color 0.3s;
+        }
+  
+        .social-icon:hover {
+          color: #00f6ff;
+        }
+  
+        /* Profile Dropdown */
+        .profile-dropdown {
+          position: relative;
+          display: inline-block;
+          margin-left: 10px;
+        }
+        .dropdown-content {
+          display: none;
+          position: absolute;
+          right: 0;
+          background-color: #1a2233;
+          min-width: 150px;
+          padding: 10px;
+          border-radius: 10px;
+          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .profile-dropdown:hover .dropdown-content {
+          display: block;
+        }
+        .dropdown-content p,
+        .dropdown-content a {
+          color: #d9e0ff;
+          padding: 8px;
+        }
+        .dropdown-content a:hover {
+          background-color: #333b44;
+          color: #00f6ff;
+        }
+        /* Styling for the open image button */
+        .open-image-btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            font-size: 20px;
+            border-radius: 100%;
+            padding: 10px;
+            cursor: pointer;
+            margin-left: 20px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+            object-fit: contain;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            z-index: 9999;
+        }             
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>AI Super App - Gallery</h1>
+        <div style="display: flex; align-items: center">
+          <b>User:&nbsp</b> {{ user.name }}
+          <div class="profile-dropdown">
+            <span class="profile-icon">|&nbsp;Manage Account 👤&nbsp;</span>
+            <!-- Profile Icon -->
+            <div class="dropdown-content">
+              <p><b>Email:</b> {{ user.email }}</p>
+              <p><b>Credits:</b> {{ user.credits }}</p>
+              <!-- Display Credits -->
+              <form action="/delete_user" method="POST" style="display: inline">
+                <button
+                  type="submit"
+                  class="download-btn"
+                  style="background-color: #dc3545"
+                >
+                  Delete Account
+                </button>
+              </form>
+            </div>
+          </div>
+          | <a href="/logout" class="btn btn-dark">&nbspLogout&nbsp</a> |
+          <a href="pricing">&nbspTry Premium&nbsp</a>
+          | <a href="home">&nbspHome&nbsp</a>
+        </div>
+      </nav>
+
+    <!-- Gallery Container -->
+    <div class="gallery-container">
+        {% if images %}
+            {% for image_data in images %}
+
+            <div class="image-box">
+              <img src="data:image/jpeg;base64,{{ image_data | b64encode }}" alt="Saved Image" />
+              <a href="data:image/jpeg;base64,{{ image_data | b64encode }}" download="SavedImage.jpg" class="download-btn">Download Image</a>
+              <span class="open-image-btn" onclick="openImageModal('{{ image_data | b64encode }}')" title="Full Screen">⛶</span>
+              <form action="/delete_image" method="POST" style="display:inline;">
+                  <button type="submit" name="image_data" value="{{ loop.index }}" class="download-btn" style="background-color: #dc3545;">Delete</button>
+              </form>
+          </div>
+          
+          <!-- Modal -->
+          <div id="imageModal" class="modal">
+              <span class="close-btn" onclick="closeImageModal()">❌</span>
+              <img class="modal-content" id="modalImage" />
+          </div>      
+          
+            {% endfor %}
+        {% elif message %}
+            <p class="empty-message">{{ message }}</p>
+        {% endif %}
+    </div>
+
+    <a href="/dashboard" class="back-btn">Back to AI Image Generator</a>
+
+    <script>
+// Function to open the image modal
+function openImageModal(imageData) {
+  var modal = document.getElementById('imageModal');
+  var modalImage = document.getElementById('modalImage');
+  modal.style.display = "block";
+  modalImage.src = "data:image/jpeg;base64," + imageData;
+}
+
+// Function to close the image modal
+function closeImageModal() {
+  var modal = document.getElementById('imageModal');
+  modal.style.display = "none";
+}
+
+</script>
+
+</body>
+</html>
