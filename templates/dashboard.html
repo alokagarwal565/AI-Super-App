@@ -299,6 +299,7 @@
           </div>
         </div>
         | <a href="/logout" class="btn btn-dark">&nbspLogout&nbsp</a> |
+        <a href="/chatbot" onclick="startChatbot(event)">&nbspChatbot&nbsp</a>
         <a href="pricing">&nbspTry Premium&nbsp</a>
         | <a href="home">&nbspHome&nbsp</a>
       </div>
@@ -447,6 +448,23 @@
           document.getElementById('loading').style.display = 'none';
           }
       };
+
+      function startChatbot(event) {
+        event.preventDefault();
+        fetch('/start_chatbot')
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'success') {
+              window.open(data.chatbot_url, '_blank');
+            } else {
+              alert('Error starting chatbot: ' + data.message);
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while starting the chatbot.');
+          });
+      }
     </script>
 
     <footer>
