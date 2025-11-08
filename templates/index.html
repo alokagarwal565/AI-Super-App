@@ -122,60 +122,57 @@
       </div>
     </div>
     <div class="header">
-      <h2>Unleash Your Imagination</h2>
-      <h1>Transform Your Ideas with AI</h1>
-      <h2>AI-Powered Image Generation and Intelligent Chatbot</h2>
+      <h2>Unleash Your Creativity</h2>
+      <h1>Bring Your Imagination to Life with AI</h1>
+      <h2>AI Tools for Image Creation, Video Generation, and Intelligent Chat</h2>
       <p>
-        Discover a comprehensive suite for all your creative photo and design
-        editing needs. Access powerful tools directly from your web browser,
-        smartphone, or desktop—completely free. The only limit is your
-        imagination!
+        Discover an all-in-one AI suite built for creators, professionals, and innovators. Generate stunning visuals, craft engaging videos, design sleek portfolios, and interact with a smart AI assistant—all from your browser, smartphone, or desktop. Completely free. The only limit is your imagination!
       </p>
       <div class="buttons">
         <a href="dashboard">Explore AI Image Generator</a>
         <a href="gen_video">Explore AI Video Generator</a>
-        <div class="buttons">
-          <a href="#" onclick="startChatbot()">Try Our AI Chatbot</a>
-        </div>
+        <a href="#" onclick="startChatbot()">Try Our AI Chatbot</a>
+        <a href="#" target="_blank" rel="noopener noreferrer" aria-label="AI Portfolio Generator">AI Portfolio Generator</a>
+        <a href="http://127.0.0.1:50641/index.html" target="_blank" rel="noopener noreferrer" aria-label="AI Document RAG System">AI Document RAG System</a>
+      </div>
 
-        <script>
-          function startChatbot() {
-            <!--
-            setTimeout(() => {
-              const chatbotUrl = "http://localhost:5173/";
-              window.open(chatbotUrl, "_blank");
-            }, 3000);
-            -->
-
-            // Open the chatbot in a new tab immediately
+      <script>
+        function startChatbot() {
+          <!--
+          setTimeout(() => {
             const chatbotUrl = "http://localhost:5173/";
             window.open(chatbotUrl, "_blank");
+          }, 3000);
+          -->
 
-            // Make the fetch request to start the chatbot
-            fetch("/start_chatbot")
-              .then((response) => {
-                // Check if the response is okay
-                if (!response.ok) {
-                  throw new Error("Network response was not ok");
-                }
-                return response.json();
-              })
-              .then((data) => {
-                if (data.status !== "success") {
-                  console.error("Failed to start the chatbot:", data.message);
-                  alert("Failed to start the chatbot. Please try again.");
-                }
-              })
-              .catch((error) => {
-                console.error("Error starting chatbot:", error);
-                alert("There was an error starting the chatbot.");
-              });
-          }
-        </script>
-      </div>
+          // Open the chatbot in a new tab immediately
+          const chatbotUrl = "http://localhost:5173/";
+          window.open(chatbotUrl, "_blank");
+
+          // Make the fetch request to start the chatbot
+          fetch("/start_chatbot")
+            .then((response) => {
+              // Check if the response is okay
+              if (!response.ok) {
+                throw new Error("Network response was not ok");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if (data.status !== "success") {
+                console.error("Failed to start the chatbot:", data.message);
+                alert("Failed to start the chatbot. Please try again.");
+              }
+            })
+            .catch((error) => {
+              console.error("Error starting chatbot:", error);
+              alert("There was an error starting the chatbot.");
+            });
+        }
+      </script>
     </div>
     <footer>
-      <p>&copy; 2024 AI Super App. All rights reserved.</p>
+      <p>&copy; 2025 AI Super App. All rights reserved.</p>
     </footer>
   </body>
 </html>
