@@ -370,6 +370,34 @@ def start_chatbot():
         }), 500
 
 
+@app.route('/start_portfolio')
+def start_portfolio():
+    # Path to the AI portfolio folder
+    portfolio_folder_path = os.path.join(os.getcwd(), 'templates', 'WebsiteBuilder')
+
+    try:
+        # Run npm run dev inside WebsiteBuilder folder on localhost:3000
+        subprocess.Popen(['npm', 'run', 'dev'], cwd=portfolio_folder_path, shell=True)
+        # Optional: Redirect to portfolio URL
+        return jsonify({
+            "status": "success",
+            "message": "AI Portfolio Generator started successfully.",
+            "portfolio_url": "http://localhost:3000/generate-portfolio"
+        })
+    except FileNotFoundError as e:
+        print("Error:", e)
+        return jsonify({
+            "status": "error",
+            "message": "FileNotFoundError: Ensure Node.js and npm are correctly installed."
+        }), 500
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -132,7 +132,7 @@
         <a href="dashboard">Explore AI Image Generator</a>
         <a href="gen_video">Explore AI Video Generator</a>
         <a href="#" onclick="startChatbot()">Try Our AI Chatbot</a>
-        <a href="#" target="_blank" rel="noopener noreferrer" aria-label="AI Portfolio Generator">AI Portfolio Generator</a>
+        <a href="#" onclick="startPortfolio()">AI Portfolio Generator</a>
         <a href="http://127.0.0.1:50641/index.html" target="_blank" rel="noopener noreferrer" aria-label="AI Document RAG System">AI Document RAG System</a>
       </div>
 
@@ -167,6 +167,32 @@
             .catch((error) => {
               console.error("Error starting chatbot:", error);
               alert("There was an error starting the chatbot.");
+            });
+        }
+
+        function startPortfolio() {
+          // Open the portfolio generator in a new tab immediately
+          const portfolioUrl = "http://localhost:3000/generate-portfolio";
+          window.open(portfolioUrl, "_blank");
+
+          // Make the fetch request to start the portfolio generator
+          fetch("/start_portfolio")
+            .then((response) => {
+              // Check if the response is okay
+              if (!response.ok) {
+                throw new Error("Network response was not ok");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if (data.status !== "success") {
+                console.error("Failed to start the portfolio generator:", data.message);
+                alert("Failed to start the portfolio generator. Please try again.");
+              }
+            })
+            .catch((error) => {
+              console.error("Error starting portfolio generator:", error);
+              alert("There was an error starting the portfolio generator.");
             });
         }
       </script>

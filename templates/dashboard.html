@@ -299,8 +299,9 @@
           </div>
         </div>
         | <a href="/logout" class="btn btn-dark">&nbspLogout&nbsp</a> |
-        <a href="/chatbot" onclick="startChatbot(event)">&nbspChatbot&nbsp</a>
-        <a href="pricing">&nbspTry Premium&nbsp</a>
+        <a href="/chatbot" onclick="startChatbot(event)">&nbsp;Chatbot&nbsp</a>
+        <a href="/portfolio" onclick="startPortfolio(event)">&nbsp;Portfolio Generator&nbsp;</a>
+        <a href="pricing">&nbsp;Try Premium&nbsp;</a>
         | <a href="home">&nbspHome&nbsp</a>
       </div>
     </nav>
@@ -463,6 +464,23 @@
           .catch(error => {
             console.error('Error:', error);
             alert('An error occurred while starting the chatbot.');
+          });
+      }
+
+      function startPortfolio(event) {
+        event.preventDefault();
+        fetch('/start_portfolio')
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'success') {
+              window.open(data.portfolio_url, '_blank');
+            } else {
+              alert('Error starting AI Portfolio Generator: ' + data.message);
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while starting the AI Portfolio Generator.');
           });
       }
     </script>
