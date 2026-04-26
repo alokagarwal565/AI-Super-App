@@ -7,7 +7,7 @@ if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
   throw new Error("GEMINI_API_KEY is not defined in the environment variables.");
 }
 const ai = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
-const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
+const model = ai.getGenerativeModel({ model: "gemini-3.1-pro-preview" });
 
 
 

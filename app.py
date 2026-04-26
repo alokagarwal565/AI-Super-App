@@ -717,8 +717,10 @@ def start_portfolio():
     portfolio_folder_path = os.path.join(os.getcwd(), 'templates', 'WebsiteBuilder')
 
     try:
-        # Run npm run dev inside WebsiteBuilder folder on localhost:3000
-        subprocess.Popen(['npm', 'run', 'dev'], cwd=portfolio_folder_path, shell=True)
+        # Run npm run dev inside WebsiteBuilder folder
+        # Ensure environment variables are passed to the subprocess
+        env = os.environ.copy()
+        subprocess.Popen(['npm', 'run', 'dev'], cwd=portfolio_folder_path, shell=True, env=env)
         # Optional: Redirect to portfolio URL
         return jsonify({
             "status": "success",
