@@ -90,22 +90,23 @@
         </header>
 
         <div class="gallery-grid">
-            <!-- Images -->
-            {% if images %}
-                {% for image_data in images %}
+            <!-- New Filesystem Images -->
+            {% if new_images %}
+                {% for image in new_images %}
                 <div class="asset-card glass animate-fade-in" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
                     <div style="background: rgba(15, 23, 42, 0.5); width: 100%; height: 300px;">
-                        <img src="data:image/jpeg;base64,{{ image_data | b64encode }}" class="asset-img" alt="AI Generation" loading="lazy">
+                        <img src="{{ url_for('serve_image', filename=image.filename) }}" class="asset-img" alt="AI Generation" loading="lazy">
                     </div>
                     <div class="asset-overlay">
-                        <a href="data:image/jpeg;base64,{{ image_data | b64encode }}" download="gen-{{ loop.index }}.jpg" class="btn-premium btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                        <a href="{{ url_for('serve_image', filename=image.filename) }}" download class="btn-premium btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
                             <i class="fas fa-download"></i>
                         </a>
-                        <button onclick="openModal('{{ image_data | b64encode }}')" class="btn-premium btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                        <button onclick="openModal('{{ url_for('serve_image', filename=image.filename) }}')" class="btn-premium btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
                             <i class="fas fa-expand"></i>
                         </button>
                         <form action="/delete_image" method="POST" style="display:inline;">
-                            <button type="submit" name="image_data" value="{{ loop.index }}" class="btn-premium" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 12px;">
+                            <input type="hidden" name="image_id" value="{{ image.id }}">
+                            <button type="submit" class="btn-premium" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 12px;">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
@@ -117,7 +118,7 @@
             <!-- Videos -->
             {% if videos %}
                 {% for video in videos %}
-                <div class="asset-card glass animate-fade-in" style="animation-delay: {{ (images|length + loop.index0) * 0.1 }}s;">
+                <div class="asset-card glass animate-fade-in" style="animation-delay: {{ (new_images|length + loop.index0) * 0.1 }}s;">
                     <div style="background: rgba(15, 23, 42, 0.5); width: 100%; height: 300px; position: relative;">
                         <video class="asset-img" muted onmouseover="this.play()" onmouseout="this.pause(); this.currentTime=0;" preload="metadata">
                             <source src="{{ url_for('serve_video', filename=video.filename) }}" type="video/mp4">
@@ -145,12 +146,12 @@
                 {% endfor %}
             {% endif %}
 
-            {% if not images and not videos %}
+            {% if not new_images and not videos %}
                 <div style="grid-column: 1/-1; text-align: center; padding: 100px; color: var(--text-muted);">
                     <i class="fas fa-box-open" style="font-size: 4rem; margin-bottom: 2rem; opacity: 0.3;"></i>
                     <h2>Vault is empty</h2>
                     <p>Generate some images or videos in the studio to see them here.</p>
-                    <a href="/dashboard" class="btn-premium btn-primary" style="margin-top: 2rem;">Go to Studio</a>
+                    <a href="/gen_image" class="btn-premium btn-primary" style="margin-top: 2rem;">Go to Studio</a>
                 </div>
             {% endif %}
         </div>
@@ -169,12 +170,12 @@
     </footer>
 
     <script>
-        function openModal(data) {
+        function openModal(src) {
             const modal = document.getElementById('imageModal');
             const img = document.getElementById('modalImg');
             const vid = document.getElementById('modalVid');
             modal.style.display = 'flex';
-            img.src = 'data:image/jpeg;base64,' + data;
+            img.src = src;
             img.style.display = 'block';
             vid.style.display = 'none';
             vid.pause();

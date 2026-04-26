@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, session, flash, url_for, send_from_directory
+from flask import Flask, render_template, request, jsonify, redirect, session, flash, url_for, send_from_directory, abort
 from flask_sqlalchemy import SQLAlchemy
 import replicate
 import requests
@@ -28,38 +28,22 @@ class User(db.Model):
     password = db.Column(db.String(100), nullable=False)
     credits = db.Column(db.Integer, default=10)  # Add credits column
     
-    # Define columns for up to 10 images
-    image1 = db.Column(db.LargeBinary, nullable=True)
-    image2 = db.Column(db.LargeBinary, nullable=True)
-    image3 = db.Column(db.LargeBinary, nullable=True)
-    image4 = db.Column(db.LargeBinary, nullable=True)
-    image5 = db.Column(db.LargeBinary, nullable=True)
-    image6 = db.Column(db.LargeBinary, nullable=True)
-    image7 = db.Column(db.LargeBinary, nullable=True)
-    image8 = db.Column(db.LargeBinary, nullable=True)
-    image9 = db.Column(db.LargeBinary, nullable=True)
-    image10 = db.Column(db.LargeBinary, nullable=True)
-
-    def __init__(self, name, email, password, image1=None, image2=None, image3=None, image4=None, image5=None, image6=None, image7=None, image8=None, image9=None, image10=None, credits=10):
+    def __init__(self, name, email, password, credits=10):
         self.name = name
         self.email = email
         self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        self.image1 = image1
-        self.image2 = image2
-        self.image3 = image3
-        self.image4 = image4
-        self.image5 = image5
-        self.image6 = image6
-        self.image7 = image7
-        self.image8 = image8
-        self.image9 = image9
-        self.image10 = image10
         self.credits = credits  # Initialize credits correctly
 
     def check_password(self, password):
         return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
 
 class UserVideo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+class UserImage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     filename = db.Column(db.String(255), nullable=False)
@@ -215,6 +199,9 @@ def generate():
 
 @app.route('/save_image', methods=['POST'])
 def save_image():
+    if 'email' not in session:
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+        
     data = request.json
     email = data['email']
     image_url = data['image_url']
@@ -224,16 +211,23 @@ def save_image():
         image_data = response.content
         user = User.query.filter_by(email=email).first()
         if user:
-            # Find the first empty image slot
-            for i in range(1, 11):
-                column_name = f"image{i}"
-                if getattr(user, column_name) is None:
-                    setattr(user, column_name, image_data)
-                    db.session.commit()
-                    return jsonify({"status": "success", "message": f"Image saved in {column_name}."})
+            # Generate a unique filename
+            timestamp = int(db.func.current_timestamp().property.columns[0].type.python_type().now().timestamp())
+            filename = f"user_{user.id}_img_{timestamp}.png"
+            img_path = os.path.join("generated_images", filename)
             
-            # All image columns are filled
-            return jsonify({"status": "error", "message": "All image slots are full. Buy premium to save more images."})
+            # Ensure directory exists
+            os.makedirs("generated_images", exist_ok=True)
+            
+            with open(img_path, 'wb') as f:
+                f.write(image_data)
+                
+            # Save to UserImage table
+            new_img = UserImage(user_id=user.id, filename=filename)
+            db.session.add(new_img)
+            db.session.commit()
+            
+            return jsonify({"status": "success", "message": "Image saved to gallery."})
         else:
             return jsonify({"status": "error", "message": "User not found."})
     else:
@@ -249,36 +243,33 @@ def gallery():
     if 'email' in session:
         user = User.query.filter_by(email=session['email']).first()
         if user:
-            images = [getattr(user, f"image{i}") for i in range(1, 11) if getattr(user, f"image{i}") is not None]
-            videos = UserVideo.query.filter_by(user_id=user.id).all()
-            return render_template('gallery.html', images=images, videos=videos, user=user)
+            # Fetch new filesystem images
+            new_images = UserImage.query.filter_by(user_id=user.id).order_by(UserImage.created_at.desc()).all()
+            
+            # Fetch videos
+            videos = UserVideo.query.filter_by(user_id=user.id).order_by(UserVideo.created_at.desc()).all()
+            
+            return render_template('gallery.html', new_images=new_images, videos=videos, user=user)
     
     flash('Please log in to access the gallery.', 'warning')
     return redirect('/login')
 
 @app.route('/delete_image', methods=['POST'])
 def delete_image():
-    user = User.query.filter_by(email=session['email']).first()
-    image_index = int(request.form['image_data'])  # Get image index from form data
-    if user:
-        # Delete the selected image
-        column_name = f"image{image_index}"
-        setattr(user, column_name, None)
-
-        # Gather all image column names
-        image_columns = [f"image{i}" for i in range(1, 11)]  # Assuming 10 images max
-
-        # Get the images and shift non-empty images to the left
-        images = [getattr(user, col) for col in image_columns]
-        non_empty_images = [img for img in images if img is not None]
-        shifted_images = non_empty_images + [None] * (len(images) - len(non_empty_images))
-
-        # Update the user's images in the database
-        for col, new_value in zip(image_columns, shifted_images):
-            setattr(user, col, new_value)
-
-        db.session.commit()
-
+    if 'email' in session:
+        user = User.query.filter_by(email=session['email']).first()
+        image_id = request.form.get('image_id')
+        
+        if user and image_id:
+            img = UserImage.query.filter_by(id=image_id, user_id=user.id).first()
+            if img:
+                # Delete file
+                try:
+                    os.remove(os.path.join("generated_images", img.filename))
+                except:
+                    pass
+                db.session.delete(img)
+                db.session.commit()
     return redirect('/gallery')
 
 @app.route('/save_image_v2', methods=['POST'])
@@ -294,15 +285,24 @@ def save_image_v2():
     user = User.query.filter_by(email=session['email']).first()
     image_binary = base64.b64decode(image_base64)
     
-    # Find next available slot
-    for i in range(1, 11):
-        slot = f"image{i}"
-        if getattr(user, slot) is None:
-            setattr(user, slot, image_binary)
-            db.session.commit()
-            return jsonify({"status": "success"})
-            
-    return jsonify({"status": "error", "message": "Gallery full"})
+    # Ensure directory exists
+    os.makedirs("generated_images", exist_ok=True)
+    
+    # Generate filename
+    from datetime import datetime
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"user_{user.id}_gen_{timestamp}.png"
+    img_path = os.path.join("generated_images", filename)
+    
+    with open(img_path, 'wb') as f:
+        f.write(image_binary)
+        
+    # Save to table
+    new_img = UserImage(user_id=user.id, filename=filename)
+    db.session.add(new_img)
+    db.session.commit()
+    
+    return jsonify({"status": "success"})
 
 @app.route('/delete_video', methods=['POST'])
 def delete_video():
@@ -574,9 +574,39 @@ def video_status(operation_id):
 
 
 # Serve the generated video file
+# Serve the generated video file (Secure)
 @app.route('/generated_videos/<filename>')
 def serve_video(filename):
+    if 'email' not in session:
+        return abort(401)
+    
+    user = User.query.filter_by(email=session['email']).first()
+    if not user:
+        return abort(401)
+        
+    # Verify ownership in database
+    video = UserVideo.query.filter_by(user_id=user.id, filename=filename).first()
+    if not video:
+        return abort(403) # Forbidden
+        
     return send_from_directory(output_path, filename)
+
+# Serve the generated image file (Secure)
+@app.route('/generated_images/<filename>')
+def serve_image(filename):
+    if 'email' not in session:
+        return abort(401)
+        
+    user = User.query.filter_by(email=session['email']).first()
+    if not user:
+        return abort(401)
+        
+    # Verify ownership in database
+    image = UserImage.query.filter_by(user_id=user.id, filename=filename).first()
+    if not image:
+        return abort(403) # Forbidden
+        
+    return send_from_directory('generated_images', filename)
 
 
 @app.route('/start_chatbot')

@@ -231,7 +231,9 @@
             <div class="input-group">
                 <label>
                     <i class="fas fa-search"></i> Search Grounding 
-                    <i class="fas fa-info-circle" style="font-size: 0.7rem; cursor: help; opacity: 0.6;" title="Uses Google Search to ensure factual accuracy in images (landmarks, current events, etc.)"></i>
+                    <span data-tooltip="Uses Google Search to ensure factual accuracy in images (landmarks, current events, etc.)">
+                        <i class="fas fa-info-circle" style="font-size: 0.7rem; cursor: help; opacity: 0.6;"></i>
+                    </span>
                 </label>
                 <div class="toggle-switch">
                     <span style="font-size: 0.9rem; color: var(--text-muted);">Factual Accuracy</span>
@@ -254,7 +256,9 @@
             <div class="input-group">
                 <label>
                     <i class="fas fa-shield-alt"></i> Safety Filter
-                    <i class="fas fa-info-circle" style="font-size: 0.7rem; cursor: help; opacity: 0.6;" title="Controls the strictness of content moderation. 'Standard' blocks most sensitive content."></i>
+                    <span data-tooltip="Controls the strictness of content moderation. 'Standard' blocks most sensitive content.">
+                        <i class="fas fa-info-circle" style="font-size: 0.7rem; cursor: help; opacity: 0.6;"></i>
+                    </span>
                 </label>
                 <select id="safety" class="modern-select">
                     <option value="BLOCK_LOW_AND_ABOVE">Standard</option>

@@ -143,3 +143,65 @@ body {
 .nav-link:hover {
   color: var(--text-main);
 }
+
+/* Tooltip styling */
+[data-tooltip] {
+  position: relative;
+  cursor: help;
+  display: inline-flex;
+  align-items: center;
+}
+
+[data-tooltip]:before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 160%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 14px;
+  background: #0f172a;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: none; /* Reset uppercase from labels */
+  border-radius: 10px;
+  width: max-content;
+  max-width: 240px;
+  white-space: normal;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  z-index: 1000;
+  pointer-events: none;
+  line-height: 1.4;
+}
+
+/* Tooltip Arrow */
+[data-tooltip]:after {
+  content: '';
+  position: absolute;
+  bottom: 135%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0 6px;
+  border-style: solid;
+  border-color: #0f172a transparent transparent transparent;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+}
+
+[data-tooltip]:hover:before,
+[data-tooltip]:hover:after {
+  opacity: 1;
+  visibility: visible;
+  bottom: 140%;
+}
+
+[data-tooltip]:hover:after {
+  bottom: 125%;
+}

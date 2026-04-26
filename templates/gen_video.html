@@ -129,7 +129,12 @@
         <!-- Controls Sidebar -->
         <aside class="controls-sidebar glass animate-fade-in">
             <div class="control-group">
-                <label>Aspect Ratio</label>
+                <label>
+                    Aspect Ratio 
+                    <span data-tooltip="Controls the frame orientation. 16:9 for YouTube, 9:16 for Reels/Shorts.">
+                        <i class="fas fa-info-circle" style="font-size: 0.7rem; cursor: help; opacity: 0.6;"></i>
+                    </span>
+                </label>
                 <select id="aspect_ratio" class="modern-select">
                     <option value="16:9">16:9 Landscape</option>
                     <option value="9:16">9:16 Portrait</option>
@@ -137,7 +142,12 @@
             </div>
 
             <div class="control-group">
-                <label>Resolution</label>
+                <label>
+                    Resolution
+                    <span data-tooltip="Higher resolutions offer more detail but may take longer to synthesize.">
+                        <i class="fas fa-info-circle" style="font-size: 0.7rem; cursor: help; opacity: 0.6;"></i>
+                    </span>
+                </label>
                 <select id="resolution" class="modern-select">
                     <option value="720p">720p HD</option>
                     <option value="1080p">1080p Full HD</option>
@@ -148,7 +158,12 @@
             <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.5rem 0;">
 
             <div class="control-group">
-                <label>Reference Image (Character/Asset)</label>
+                <label>
+                    Reference Image
+                    <span data-tooltip="Upload an image to maintain character or object consistency across the video.">
+                        <i class="fas fa-info-circle" style="font-size: 0.7rem; cursor: help; opacity: 0.6;"></i>
+                    </span>
+                </label>
                 <div class="file-upload-card" onclick="document.getElementById('ref_image').click()">
                     <i class="fas fa-id-card"></i>
                     <p style="font-size: 0.75rem;">Upload Asset Ref</p>
@@ -159,8 +174,10 @@
 
             <div class="control-group">
                 <label>
-                    Keyframes (Interpolation) 
-                    <i class="fas fa-info-circle" onclick="alert('How to use Keyframes:\n1. Upload Start Frame: The beginning of your video.\n2. Upload Last Frame: The end of your video.\n3. The AI will generate the motion between them based on your prompt.')" style="cursor: pointer; margin-left: 4px; color: var(--accent-violet);"></i>
+                    Keyframes (Interpolation)
+                    <span data-tooltip="Provide starting and ending images; the AI will generate the motion between them.">
+                        <i class="fas fa-info-circle" style="font-size: 0.7rem; cursor: help; opacity: 0.6;"></i>
+                    </span>
                 </label>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
                     <div class="file-upload-card" onclick="document.getElementById('first_frame').click()">
