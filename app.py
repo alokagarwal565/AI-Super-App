@@ -13,7 +13,7 @@ load_dotenv()
 app = Flask(__name__)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 VEO_MODEL = "veo-3.1-generate-preview"
-BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
+BASE_URL = "https://generativelanguage.googleapis.com/v1beta1"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -329,6 +329,28 @@ def delete_user():
     return redirect('/home')  # Redirect to home or any other page
 
 
+# Model Capabilities Mapping
+MODEL_CAPABILITIES = {
+    "gemini-3.1-flash-image-preview": {
+        "supportsThinking": False,
+        "supportsImages": True,
+        "supportsTools": True,
+        "supportsImageConfig": True
+    },
+    "gemini-2.0-flash": {
+        "supportsThinking": False,
+        "supportsImages": False,
+        "supportsTools": True,
+        "supportsImageConfig": False
+    },
+    "gemini-3.1-pro": {
+        "supportsThinking": True,
+        "supportsImages": False,
+        "supportsTools": True,
+        "supportsImageConfig": False
+    }
+}
+
 @app.route('/generate_image_gemini', methods=['POST'])
 def generate_image_gemini():
     try:
@@ -337,72 +359,124 @@ def generate_image_gemini():
             
         data = request.json
         prompt = data.get('prompt')
-        model = data.get('model', 'gemini-3-pro-image-preview')
+        model = data.get('model', 'gemini-3.1-flash-image-preview')
+        
+        # Get Model Capabilities
+        capabilities = MODEL_CAPABILITIES.get(model, {
+            "supportsThinking": False,
+            "supportsImages": True,
+            "supportsTools": True,
+            "supportsImageConfig": True
+        })
+        
         ratio = data.get('ratio', '1:1')
-        grounding = data.get('grounding', False)
-        safety = data.get('safety', 'BLOCK_LOW_AND_ABOVE')
-        ref_image = data.get('ref_image')
+        size = data.get('size', '1K')
+        
+        # Tools / Grounding
+        tools_config = data.get('tools', {})
+        web_search = tools_config.get('webSearch', False)
+        image_search = tools_config.get('imageSearch', False)
+        
+        # Thinking Config
+        thinking = data.get('thinking', {})
+        include_thoughts = thinking.get('includeThoughts', False)
+        thinking_level = thinking.get('level', 'HIGH')
+        
+        # Multimodal Inputs
+        ref_image = data.get('ref_image') # Base64
         
         user = User.query.filter_by(email=session['email']).first()
         if user.credits <= 0:
             return jsonify({"status": "error", "message": "Insufficient credits"}), 403
             
-        # Deduct credit
         user.credits -= 1
         db.session.commit()
         
-        # Construct Payload
-        payload = {
-            "contents": [{
-                "parts": [{"text": prompt}]
-            }],
-            "generationConfig": {
-                "responseModalities": ["IMAGE"]
-            }
-        }
-        
-        # Add grounding if requested
-        if grounding:
-            payload["tools"] = [{"google_search": {}}]
-            
-        # Add reference image if provided (Image-to-Image)
-        if ref_image:
-            payload["contents"][0]["parts"].append({
+        # 1. Construct contents[]
+        parts = [{"text": prompt}]
+        if ref_image and (capabilities["supportsImages"] or capabilities["supportsImageConfig"]):
+            parts.append({
                 "inline_data": {
                     "mime_type": "image/png",
                     "data": ref_image
                 }
             })
             
+        payload = {
+            "contents": [{"role": "user", "parts": parts}],
+            "generationConfig": {
+                "responseModalities": ["IMAGE"] if capabilities["supportsImageConfig"] else ["TEXT"]
+            }
+        }
+        
+        # 2. Add imageConfig if supported
+        if capabilities["supportsImageConfig"]:
+            payload["generationConfig"]["imageConfig"] = {
+                "aspectRatio": ratio,
+                "imageSize": size
+            }
+        
+        # 3. Add Tools (Grounding) only if supported
+        if capabilities["supportsTools"] and (web_search or image_search):
+            search_types = {}
+            if web_search: search_types["webSearch"] = {}
+            if image_search: search_types["imageSearch"] = {}
+            
+            payload["tools"] = [{
+                "google_search": {
+                    "searchTypes": search_types
+                }
+            }]
+        elif (web_search or image_search):
+            print(f"WARNING: tools are not supported for model {model} and will be ignored.")
+            
+        # 4. Add Thinking Config only if supported
+        if include_thoughts:
+            if capabilities["supportsThinking"]:
+                payload["thinkingConfig"] = {
+                    "thinkingLevel": thinking_level,
+                    "includeThoughts": True
+                }
+            else:
+                print(f"WARNING: thinkingConfig is not supported for model {model} and will be ignored.")
+
         # Call Gemini API
-        url = f"{BASE_URL}/models/{model}:generateContent?key={GEMINI_API_KEY}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
         res = requests.post(url, json=payload)
         
         if res.status_code != 200:
-            print(f"DEBUG: Gemini Image Error: {res.text}")
+            print(f"DEBUG: Gemini API Error: {res.text}")
             return jsonify({"status": "error", "message": f"API Error {res.status_code}"})
             
         result = res.json()
         
-        # Extract base64 image
+        # Extract Image from generateContent response
         candidates = result.get('candidates', [])
         if not candidates:
-            return jsonify({"status": "error", "message": "No image candidates returned"})
+            return jsonify({"status": "error", "message": "Generation blocked or failed."})
             
         parts = candidates[0].get('content', {}).get('parts', [])
         image_base64 = None
+        thoughts = None
+        
         for part in parts:
             if 'inlineData' in part:
                 image_base64 = part['inlineData'].get('data')
-                break
+            if 'thought' in part:
+                thoughts = part['thought']
                 
         if not image_base64:
-            return jsonify({"status": "error", "message": "No image data found in response"})
+            return jsonify({"status": "error", "message": "No image data in response"})
             
         return jsonify({
             "status": "success",
-            "image_base64": image_base64
+            "image_base64": image_base64,
+            "thoughts": thoughts
         })
+        
+    except Exception as e:
+        print(f"DEBUG: Exception: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)})
         
     except Exception as e:
         print(f"DEBUG: Exception in image gen: {str(e)}")
