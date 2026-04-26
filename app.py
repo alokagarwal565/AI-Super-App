@@ -129,6 +129,14 @@ def dashboard():
     flash('Please log in to access the AI Super App.', 'warning')
     return redirect('/login')
 
+@app.route('/gen_image')
+def gen_image():
+    if 'email' in session:
+        user = User.query.filter_by(email=session['email']).first()
+        return render_template('gen_image.html', user=user)
+    flash('Please log in to access the Studio.', 'warning')
+    return redirect('/login')
+
 @app.route('/logout')
 def logout():
     session.pop('email', None)
@@ -273,6 +281,29 @@ def delete_image():
 
     return redirect('/gallery')
 
+@app.route('/save_image_v2', methods=['POST'])
+def save_image_v2():
+    if 'email' not in session:
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+    
+    data = request.json
+    image_base64 = data.get('image_base64')
+    if not image_base64:
+        return jsonify({"status": "error", "message": "No image data"}), 400
+    
+    user = User.query.filter_by(email=session['email']).first()
+    image_binary = base64.b64decode(image_base64)
+    
+    # Find next available slot
+    for i in range(1, 11):
+        slot = f"image{i}"
+        if getattr(user, slot) is None:
+            setattr(user, slot, image_binary)
+            db.session.commit()
+            return jsonify({"status": "success"})
+            
+    return jsonify({"status": "error", "message": "Gallery full"})
+
 @app.route('/delete_video', methods=['POST'])
 def delete_video():
     if 'email' in session:
@@ -296,6 +327,86 @@ def delete_user():
         session.pop('email', None)  # Log the user out after deletion
     
     return redirect('/home')  # Redirect to home or any other page
+
+
+@app.route('/generate_image_gemini', methods=['POST'])
+def generate_image_gemini():
+    try:
+        if 'email' not in session:
+            return jsonify({"status": "error", "message": "Unauthorized"}), 401
+            
+        data = request.json
+        prompt = data.get('prompt')
+        model = data.get('model', 'gemini-3-pro-image-preview')
+        ratio = data.get('ratio', '1:1')
+        grounding = data.get('grounding', False)
+        safety = data.get('safety', 'BLOCK_LOW_AND_ABOVE')
+        ref_image = data.get('ref_image')
+        
+        user = User.query.filter_by(email=session['email']).first()
+        if user.credits <= 0:
+            return jsonify({"status": "error", "message": "Insufficient credits"}), 403
+            
+        # Deduct credit
+        user.credits -= 1
+        db.session.commit()
+        
+        # Construct Payload
+        payload = {
+            "contents": [{
+                "parts": [{"text": prompt}]
+            }],
+            "generationConfig": {
+                "responseModalities": ["IMAGE"]
+            }
+        }
+        
+        # Add grounding if requested
+        if grounding:
+            payload["tools"] = [{"google_search": {}}]
+            
+        # Add reference image if provided (Image-to-Image)
+        if ref_image:
+            payload["contents"][0]["parts"].append({
+                "inline_data": {
+                    "mime_type": "image/png",
+                    "data": ref_image
+                }
+            })
+            
+        # Call Gemini API
+        url = f"{BASE_URL}/models/{model}:generateContent?key={GEMINI_API_KEY}"
+        res = requests.post(url, json=payload)
+        
+        if res.status_code != 200:
+            print(f"DEBUG: Gemini Image Error: {res.text}")
+            return jsonify({"status": "error", "message": f"API Error {res.status_code}"})
+            
+        result = res.json()
+        
+        # Extract base64 image
+        candidates = result.get('candidates', [])
+        if not candidates:
+            return jsonify({"status": "error", "message": "No image candidates returned"})
+            
+        parts = candidates[0].get('content', {}).get('parts', [])
+        image_base64 = None
+        for part in parts:
+            if 'inlineData' in part:
+                image_base64 = part['inlineData'].get('data')
+                break
+                
+        if not image_base64:
+            return jsonify({"status": "error", "message": "No image data found in response"})
+            
+        return jsonify({
+            "status": "success",
+            "image_base64": image_base64
+        })
+        
+    except Exception as e:
+        print(f"DEBUG: Exception in image gen: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)})
 
 @app.route('/pricing')
 def pricing():
