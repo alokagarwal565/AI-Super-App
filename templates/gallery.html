@@ -89,12 +89,14 @@
             <p style="color: var(--text-muted);">Manage and download your AI-generated assets.</p>
         </header>
 
-        <div class="gallery-grid animate-fade-in" style="animation-delay: 0.2s;">
+        <div class="gallery-grid">
             <!-- Images -->
             {% if images %}
                 {% for image_data in images %}
-                <div class="asset-card glass">
-                    <img src="data:image/jpeg;base64,{{ image_data | b64encode }}" class="asset-img" alt="AI Generation">
+                <div class="asset-card glass animate-fade-in" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+                    <div style="background: rgba(15, 23, 42, 0.5); width: 100%; height: 300px;">
+                        <img src="data:image/jpeg;base64,{{ image_data | b64encode }}" class="asset-img" alt="AI Generation" loading="lazy">
+                    </div>
                     <div class="asset-overlay">
                         <a href="data:image/jpeg;base64,{{ image_data | b64encode }}" download="gen-{{ loop.index }}.jpg" class="btn-premium btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
                             <i class="fas fa-download"></i>
@@ -103,7 +105,7 @@
                             <i class="fas fa-expand"></i>
                         </button>
                         <form action="/delete_image" method="POST" style="display:inline;">
-                            <button type="submit" name="image_data" value="{{ loop.index }}" class="btn-premium" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 12px;">
+                            <button type="submit" name="image_data" value="{{ loop.index }}" class="btn-premium" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 12px;">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
@@ -115,11 +117,16 @@
             <!-- Videos -->
             {% if videos %}
                 {% for video in videos %}
-                <div class="asset-card glass">
-                    <video class="asset-img" muted onmouseover="this.play()" onmouseout="this.pause(); this.currentTime=0;">
-                        <source src="{{ url_for('serve_video', filename=video.filename) }}" type="video/mp4">
-                    </video>
-                    <div style="position: absolute; top: 10px; right: 10px; background: var(--accent-violet); padding: 4px 8px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; color: white;">VIDEO</div>
+                <div class="asset-card glass animate-fade-in" style="animation-delay: {{ (images|length + loop.index0) * 0.1 }}s;">
+                    <div style="background: rgba(15, 23, 42, 0.5); width: 100%; height: 300px; position: relative;">
+                        <video class="asset-img" muted onmouseover="this.play()" onmouseout="this.pause(); this.currentTime=0;" preload="metadata">
+                            <source src="{{ url_for('serve_video', filename=video.filename) }}" type="video/mp4">
+                        </video>
+                        <div style="position: absolute; top: 15px; right: 15px; background: var(--accent-violet); padding: 4px 10px; border-radius: 8px; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.05em; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 2;">VIDEO</div>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5; pointer-events: none;">
+                            <i class="fas fa-play-circle" style="font-size: 3rem; color: white;"></i>
+                        </div>
+                    </div>
                     <div class="asset-overlay">
                         <a href="{{ url_for('serve_video', filename=video.filename) }}" download class="btn-premium btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
                             <i class="fas fa-download"></i>
@@ -129,7 +136,7 @@
                         </button>
                         <form action="/delete_video" method="POST" style="display:inline;">
                             <input type="hidden" name="video_id" value="{{ video.id }}">
-                            <button type="submit" class="btn-premium" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 12px;">
+                            <button type="submit" class="btn-premium" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 12px;">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
