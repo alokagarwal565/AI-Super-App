@@ -6,9 +6,12 @@ import bcrypt
 import os
 import base64
 import subprocess
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-GEMINI_API_KEY = "AIzaSyC-laNXff6LWfKGaGm0rZFXiJidFXFAhOA"
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 VEO_MODEL = "veo-3.1-generate-preview"
 BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
 
