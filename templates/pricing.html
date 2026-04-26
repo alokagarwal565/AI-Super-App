@@ -1,247 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>AI Super App Pricing</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Plans | AI Super App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern_styles.css') }}">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        .pricing-container {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 0 20px;
         }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1e1e2d, #292942);
-            color: #fff;
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+        .plan-card {
+            padding: 3rem 2rem;
+            border-radius: 32px;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            gap: 1.5rem;
+            transition: all 0.4s;
+            border: 1px solid var(--border-glass);
         }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            padding: 20px;
-            background-color: #333;
+        .plan-card.featured {
+            border: 2px solid var(--accent-violet);
+            background: rgba(139, 92, 246, 0.1);
+            transform: scale(1.05);
         }
-        
-        nav h1, nav a {
-            color: white;
-            margin: 0;
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 800;
         }
-
-        nav a {
-            text-decoration: none;
-            color: #007BFF;
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 800;
         }
-
-        .container {
-            text-align: center;
-            max-width: 800px;
-            padding: 20px;
-            flex: 1; /* Allow the container to grow */
+        .plan-price span {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 500;
         }
-
-        header h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-
-        header p {
-            font-size: 1em;
-            margin-bottom: 20px;
-        }
-
-        .toggle {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        .toggle button {
-            background-color: #4e3e8c;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 20px;
-        }
-
-        .toggle button.active {
-            background-color: #9147ff;
-        }
-
-        .pricing-plans {
-            display: flex;
-            gap: 20px;
-        }
-
-        .plan {
-            background: #35355d;
-            border-radius: 15px;
-            padding: 20px;
-            width: 30%;
-        }
-
-        .plan h2 {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-        }
-
-        .plan p {
-            font-size: 0.9em;
-            margin-bottom: 15px;
-        }
-
-        .plan ul {
+        .feature-list {
             list-style: none;
-            text-align: left;
-            margin-bottom: 20px;
+            margin: 1.5rem 0;
         }
-
-        .plan ul li {
-            margin: 10px 0;
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            color: var(--text-muted);
         }
-
-        .plan button {
-            background-color: #4e3e8c;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 10px;
-            margin-bottom: 10px;
+        .feature-list i {
+            color: var(--accent-emerald);
         }
-
-        .plan .price {
-            font-size: 1.8em;
-            margin-top: 10px;
+        .badge-popular {
+            background: var(--accent-violet);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            width: fit-content;
         }
-
-        .plan .price span {
-            font-size: 0.8em;
-            color: #a0a0d4;
-        }
-
-        .popular {
-            border: 2px solid #9147ff;
-        }
-
-        .popular h2 span {
-            background-color: #ff6d91;
-            color: #fff;
-            font-size: 0.8em;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-left: 5px;
-        }
-
-        footer {
-            background-color: #333;
-            color: #ffffff;
-            padding: 20px;
-            text-align: center;
+        .toggle-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
     </style>
 </head>
 <body>
-    <nav>
-        <h1>AI Super App</h1>
-        <div>
-            <a href="home">Home</a> | 
-            <a href="register">Sign Up</a> |
-            <a href="login">Log In</a>
+    <div class="blob" style="background: var(--accent-blue); top: 10%; right: 10%;"></div>
+    
+    <nav class="nav-container">
+        <div class="nav-logo glow-text">AI Super App</div>
+        <div class="nav-menu">
+            <a href="/home" class="nav-link">Home</a>
+            <a href="/login" class="nav-link">Login</a>
+            <a href="/register" class="btn-premium btn-primary">Start Free</a>
         </div>
     </nav>
-    
-    <div class="container">
-        <header>
-            <h1>We Got a Plan for You!</h1>
-            <p>Pay monthly or yearly and enjoy a 7-day free trial. Cancel whenever you feel like it - no fuss and no hoops.</p>
-            <div class="toggle">
-                <button class="active" data-duration="monthly">Monthly</button>
-                <button data-duration="yearly">Yearly <span>Save more</span></button>
-            </div>
+
+    <main class="pricing-container">
+        <header class="text-center animate-fade-in">
+            <h1 class="glow-text" style="font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem;">Simple, Transparent Pricing</h1>
+            <p style="color: var(--text-muted); font-size: 1.25rem; max-width: 600px; margin: 0 auto;">Choose the plan that fits your creative workflow.</p>
         </header>
-        <div class="pricing-plans">
-            <div class="plan plus">
-                <h2>Plus</h2>
-                <p>I just need the basics!</p>
-                <ul>
-                    <li>Ad-Free</li>
-                    <li>20 photos storage</li>
-                    <li>80 monthly AI Credits</li>
+
+        <div class="toggle-wrapper animate-fade-in" style="margin-top: 3rem;">
+            <span id="monthlyLabel" style="font-weight: 600;">Monthly</span>
+            <button id="billingToggle" class="btn-premium btn-outline" style="padding: 0.4rem 1rem; font-size: 0.8rem;">Switch to Yearly</button>
+            <span id="yearlyLabel" style="color: var(--text-muted);">Yearly (Save 20%)</span>
+        </div>
+
+        <div class="pricing-grid animate-fade-in" style="animation-delay: 0.2s;">
+            <!-- Free Plan -->
+            <div class="plan-card glass">
+                <div class="plan-name">Starter</div>
+                <div class="plan-price" id="price-starter">$0<span>/mo</span></div>
+                <p style="color: var(--text-muted);">Perfect for trying out our AI tools.</p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> 50 AI Credits</li>
+                    <li><i class="fas fa-check"></i> Standard Generation Speed</li>
+                    <li><i class="fas fa-check"></i> Community Support</li>
                 </ul>
-                <button onclick="window.open('https://forms.gle/igW7CS4G5WthtTHQA', '_blank')">Subscribe now!</button>
-                <p class="price" data-monthly="$1.99" data-yearly="$19.99">$1.99 <span>per month</span></p>
+                <a href="/register" class="btn-premium btn-outline" style="justify-content: center; margin-top: auto;">Get Started</a>
             </div>
-            <div class="plan premium popular">
-                <h2>Premium <span>Popular</span></h2>
-                <p>Full access to all the premium features across all platforms with a nice chunk of AI credits</p>
-                <ul>
-                    <li>Ad-Free</li>
-                    <li>50 photos storage</li>
-                    <li>1000 monthly AI Credits</li>
-                    <li>Private mode for AI Generations</li>
-                    <li>Big library of fonts, templates, elements, animations and more</li>
+
+            <!-- Pro Plan -->
+            <div class="plan-card glass featured">
+                <div class="badge-popular">Most Popular</div>
+                <div class="plan-name">Pro Studio</div>
+                <div class="plan-price" id="price-pro">$1.99<span>/mo</span></div>
+                <p style="color: var(--text-muted);">For power users and creative professionals.</p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> 1000 AI Credits</li>
+                    <li><i class="fas fa-check"></i> Priority Turbo Processing</li>
+                    <li><i class="fas fa-check"></i> 50 Cloud Slots</li>
+                    <li><i class="fas fa-check"></i> Early Access Features</li>
                 </ul>
-                <button onclick="window.open('https://forms.gle/igW7CS4G5WthtTHQA', '_blank')">Subscribe now!</button>
-                <p class="price" data-monthly="$7.99" data-yearly="$79.99">$7.99 <span>per month</span></p>
+                <button onclick="window.open('https://forms.gle/igW7CS4G5WthtTHQA', '_blank')" class="btn-premium btn-primary" style="justify-content: center; margin-top: auto;">Upgrade Now</button>
             </div>
-            <div class="plan team">
-                <h2>Team</h2>
-                <p>Manage your team members and collaborate. Five premium seats included.</p>
-                <ul>
-                    <li>Ad-Free</li>
-                    <li>Unlimited photos storage</li>
-                    <li>5 Premium seats</li>
-                    <li>1000 monthly AI Credits/seat</li>
+
+            <!-- Team Plan -->
+            <div class="plan-card glass">
+                <div class="plan-name">Enterprise</div>
+                <div class="plan-price" id="price-enterprise">$12.99<span>/mo</span></div>
+                <p style="color: var(--text-muted);">Scale your creativity with your team.</p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> 5000 AI Credits</li>
+                    <li><i class="fas fa-check"></i> Unlimited Cloud Storage</li>
+                    <li><i class="fas fa-check"></i> Team Collaboration</li>
+                    <li><i class="fas fa-check"></i> Dedicated Account Manager</li>
                 </ul>
-                <button onclick="window.open('https://forms.gle/igW7CS4G5WthtTHQA', '_blank')">Subscribe now!</button>
-                <p class="price" data-monthly="$12.99" data-yearly="$129.99">$12.99 <span>per month</span></p>
+                <button onclick="window.open('https://forms.gle/igW7CS4G5WthtTHQA', '_blank')" class="btn-premium btn-outline" style="justify-content: center; margin-top: auto;">Contact Sales</button>
             </div>
         </div>
-    </div>
-    
-    <footer>
-        <p>&copy; 2025 AI Super App. All rights reserved.</p>
-        <p>Follow us on:
-            <a href="#" class="footer-link">Twitter</a> |
-            <a href="#" class="footer-link">Facebook</a> |
-            <a href="#" class="footer-link">Instagram</a>
-        </p>
+    </main>
+
+    <footer class="footer" style="margin-top: 100px;">
+        <p>&copy; 2026 AI Super App. All rights reserved.</p>
     </footer>
 
     <script>
-        // Simple toggle functionality for monthly/yearly buttons
-        const buttons = document.querySelectorAll('.toggle button');
-        const plans = document.querySelectorAll('.plan .price');
+        const billingToggle = document.getElementById('billingToggle');
+        const pricePro = document.getElementById('price-pro');
+        const priceEnterprise = document.getElementById('price-enterprise');
+        let isYearly = false;
 
-        buttons.forEach(button => {
-            button.addEventListener('click', () => {
-                buttons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-
-                const duration = button.getAttribute('data-duration');
-                plans.forEach(plan => {
-                    const monthlyPrice = plan.getAttribute('data-monthly');
-                    const yearlyPrice = plan.getAttribute('data-yearly');
-                    
-                    if (duration === 'monthly') {
-                        plan.innerHTML = `${monthlyPrice} <span>per month</span>`;
-                    } else {
-                        plan.innerHTML = `${yearlyPrice} <span>per year</span>`;
-                    }
-                });
-            });
-        });
+        billingToggle.onclick = () => {
+            isYearly = !isYearly;
+            if (isYearly) {
+                pricePro.innerHTML = '$19.99<span>/yr</span>';
+                priceEnterprise.innerHTML = '$129.99<span>/yr</span>';
+                billingToggle.innerText = 'Switch to Monthly';
+            } else {
+                pricePro.innerHTML = '$1.99<span>/mo</span>';
+                priceEnterprise.innerHTML = '$12.99<span>/mo</span>';
+                billingToggle.innerText = 'Switch to Yearly';
+            }
+        };
     </script>
 </body>
 </html>

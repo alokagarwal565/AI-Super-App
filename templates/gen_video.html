@@ -1,386 +1,365 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Video Generator</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-    />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Studio | AI Super App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern_styles.css') }}">
     <style>
-      /* Global styling */
-      body {
-        background-color: #0a0e17; /* Dark background */
-        color: #d9e0ff; /* Soft white text */
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
-        text-align: center;
-        padding: none;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
-
-      /* Navigation Bar */
-      nav {
-        display: flex;
-        justify-content: space-between;
-        padding: 20px;
-        background: linear-gradient(
-          135deg,
-          #1f2933 0%,
-          #141a23 100%
-        ); /* Gradient for futuristic look */
-        border-bottom: 1px solid #00f6ff; /* Neon accent */
-      }
-      nav h1 {
-        color: #00f6ff;
-        font-weight: bold;
-      }
-      nav a {
-        text-decoration: none;
-        color: #00f6ff;
-        font-weight: 600;
-        transition: color 0.3s ease;
-      }
-      nav a:hover {
-        color: #a2e2ff;
-      }
-
-      /* Container */
-      .container {
-        max-width: 600px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      /* Inputs and Button */
-      input,
-      button {
-        padding: 15px;
-        margin: 10px 0;
-        border-radius: 10px;
-        border: 1px solid #00f6ff;
-        font-size: 16px;
-        width: 100%;
-        background-color: #1a2233;
-        color: #d9e0ff;
-        transition: all 0.3s;
-      }
-      input:focus,
-      button:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 8px rgba(0, 246, 255, 0.5);
-      }
-      button {
-        background-color: #00f6ff;
-        color: #141a23;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-      button:hover {
-        background-color: #007bff;
-      }
-
-      /* Button Styling */
-      .button {
-        padding: 15px;
-        margin: 10px 10px;
-        border-radius: 10px;
-        border: 1px solid #00f6ff;
-        font-size: 16px;
-        width: 150px;
-        background-color: #00f6ff;
-        color: #141a23;
-        font-weight: bold;
-        cursor: pointer;
-        text-align: center;
-        transition: background-color 0.3s ease;
-        text-decoration: none; /* Remove underline for download button */
-        display: inline-block; /* Ensures correct layout for download link */
-      }
-
-      .button:hover {
-        background-color: #007bff;
-      }
-
-      /* Button Styling */
-      .action-button {
-        padding: 15px;
-        margin: 10px 10px;
-        border-radius: 10px;
-        border: 1px solid #00f6ff;
-        font-size: 16px;
-        width: 150px;
-        background-color: #00f6ff;
-        color: #141a23;
-        font-weight: bold;
-        cursor: pointer;
-        text-align: center;
-        transition: background-color 0.3s ease;
-        text-decoration: none; /* Remove underline for download button */
-        display: inline-block; /* Ensures correct layout for download link */
-      }
-
-      .action-button:hover {
-        background-color: #007bff;
-      }
-
-      /* Loading Animation */
-      #loading {
-        display: none;
-        font-size: 24px;
-        color: #00f6ff;
-      }
-
-      /* Image Output Styling */
-      img {
-        max-width: 100%;
-        height: auto;
-        border: 2px solid #00f6ff;
-        border-radius: 12px;
-        transition: box-shadow 0.3s;
-      }
-      img:hover {
-        box-shadow: 0 0 15px #00f6ff;
-      }
-
-      /* Icon Buttons */
-      .icon-button {
-        display: inline-block;
-        padding: 10px;
-        border-radius: 50%;
-        background-color: #00f6ff;
-        color: #0a0e17;
-        margin: 10px;
-        cursor: pointer;
-        text-align: center;
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-        transition: background-color 0.3s;
-      }
-      .icon-button:hover {
-        background-color: #007bff;
-      }
-
-      /* Footer Styling */
-      footer {
-        margin-top: 180px;
-        padding: 20px;
-        background-color: #141a23;
-        color: #a2e2ff;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 14px;
-      }
-
-      footer h2 {
-        font-size: 18px;
-        color: #00f6ff;
-      }
-
-      .footer-right {
-        display: flex;
-        align-items: center;
-      }
-
-      .footer-link {
-        color: #00f6ff;
-        text-decoration: none;
-        margin: 0 10px; /* Added margin for spacing between links */
-        transition: color 0.3s;
-      }
-
-      .footer-link:hover {
-        color: #a2e2ff;
-      }
-
-      .social-icons {
-        display: flex;
-        align-items: center;
-        margin-left: 10px; /* Space between links and social icons */
-      }
-
-      .social-icon {
-        color: #a2e2ff;
-        margin: 0 10px;
-        font-size: 18px;
-        transition: color 0.3s;
-      }
-
-      .social-icon:hover {
-        color: #00f6ff;
-      }
-
-      /* Profile Dropdown */
-      .profile-dropdown {
-        position: relative;
-        display: inline-block;
-        margin-left: 10px;
-      }
-      .dropdown-content {
-        display: none;
-        position: absolute;
-        right: 0;
-        background-color: #1a2233;
-        min-width: 150px;
-        padding: 10px;
-        border-radius: 10px;
-        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-      }
-      .profile-dropdown:hover .dropdown-content {
-        display: block;
-      }
-      .dropdown-content p,
-      .dropdown-content a {
-        color: #d9e0ff;
-        padding: 8px;
-      }
-      .dropdown-content a:hover {
-        background-color: #333b44;
-        color: #00f6ff;
-      }
+        .studio-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+        .controls-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: fit-content;
+            padding: 2rem;
+            position: sticky;
+            top: 100px;
+        }
+        .preview-area {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .control-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .modern-select, .modern-textarea {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-glass);
+            padding: 0.75rem;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.95rem;
+            width: 100%;
+        }
+        .file-upload-card {
+            border: 1px dashed var(--border-glass);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .file-upload-card:hover {
+            border-color: var(--accent-violet);
+            background: rgba(139, 92, 246, 0.05);
+        }
+        .file-upload-card i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-violet);
+        }
+        .file-preview {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            display: none;
+            margin-top: 0.5rem;
+        }
+        #video-display {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: black;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #video-display video {
+            width: 100%;
+            height: 100%;
+        }
+        .loading-overlay {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: var(--accent-violet);
+            color: white;
+        }
     </style>
-  </head>
-  <body>
-    <nav>
-      <h1>AI Super App</h1>
-      <div style="display: flex; align-items: center">
-        <b>User:&nbsp</b> {{ user.name }}
-        <div class="profile-dropdown">
-          <span class="profile-icon">|&nbsp;Manage Account 👤&nbsp;</span>
-          <!-- Profile Icon -->
-          <div class="dropdown-content">
-            <p><b>Email:</b> {{ user.email }}</p>
-            <p><b>Credits:</b> {{ user.credits }}</p>
-            <!-- Display Credits -->
-            <a href="/gallery">Gallery</a>
-            <!-- Link to Gallery -->
-            <form action="/delete_user" method="POST" style="display: inline">
-              <button
-                type="submit"
-                class="download-btn"
-                style="background-color: #dc3545"
-              >
-                Delete Account
-              </button>
-            </form>
-          </div>
+</head>
+<body>
+    <div class="blob" style="background: var(--accent-blue); bottom: -10%; right: -10%;"></div>
+    
+    <nav class="nav-container">
+        <div class="nav-logo">
+            <span class="glow-text">AI Video Studio</span>
+            <span class="status-badge" style="margin-left: 10px;">VEO 3.1</span>
         </div>
-        | <a href="/logout" class="btn btn-dark">&nbspLogout&nbsp</a> |
-        <a href="pricing">&nbspTry Premium&nbsp</a>
-        | <a href="home">&nbspHome&nbsp</a>
-      </div>
+        <div class="nav-menu">
+            <div class="profile-chip glass">
+                <i class="fas fa-coins text-yellow-400"></i>
+                <span>{{ user.credits }} Credits</span>
+            </div>
+            <a href="/home" class="nav-link">Home</a>
+            <a href="/logout" class="btn-premium btn-outline" style="padding: 0.5rem 1rem;">Logout</a>
+        </div>
     </nav>
 
-    {% if login_success %}
-    <div class="text-center mt-3">
-      <div
-        class="alert alert-success alert-dismissible fade show mx-auto"
-        style="width: 80%"
-        role="alert"
-      >
-        {{ login_success }}
-        <button
-          type="button"
-          class="close"
-          data-dismiss="alert"
-          aria-label="Close"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    </div>
-    {% endif %}
+    <main class="studio-container">
+        <!-- Controls Sidebar -->
+        <aside class="controls-sidebar glass animate-fade-in">
+            <div class="control-group">
+                <label>Aspect Ratio</label>
+                <select id="aspect_ratio" class="modern-select">
+                    <option value="16:9">16:9 Landscape</option>
+                    <option value="9:16">9:16 Portrait</option>
+                </select>
+            </div>
 
-    <div class="container">
-      <h1><br /><br />AI Video Generator</h1>
-      <h5>Create a video from a text description using AI.</h5>
-      <input type="text" id="prompt" placeholder="Enter your prompt" required />
-      <button id="generateBtn">Generate Video</button>
-      <div id="loading" style="display: none">
-        <i class="fas fa-spinner fa-spin"></i> Generating...
-      </div>
-      <div id="output"></div>
+            <div class="control-group">
+                <label>Resolution</label>
+                <select id="resolution" class="modern-select">
+                    <option value="720p">720p HD</option>
+                    <option value="1080p">1080p Full HD</option>
+                    <option value="4k">4K Ultra HD</option>
+                </select>
+            </div>
 
-      <div id="videoSection" style="display: none">
-        <video id="generated-video" controls style="display: none"></video>
-        <a
-          id="download-link"
-          href="#"
-          download="output.mp4"
-          class="action-button"
-          style="display: none"
-        >
-          Download Video
-        </a>
-      </div>
-    </div>
+            <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.5rem 0;">
+
+            <div class="control-group">
+                <label>Reference Image (Character/Asset)</label>
+                <div class="file-upload-card" onclick="document.getElementById('ref_image').click()">
+                    <i class="fas fa-id-card"></i>
+                    <p style="font-size: 0.75rem;">Upload Asset Ref</p>
+                    <input type="file" id="ref_image" hidden accept="image/*" onchange="previewFile(this, 'ref_preview')">
+                    <img id="ref_preview" class="file-preview">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>
+                    Keyframes (Interpolation) 
+                    <i class="fas fa-info-circle" onclick="alert('How to use Keyframes:\n1. Upload Start Frame: The beginning of your video.\n2. Upload Last Frame: The end of your video.\n3. The AI will generate the motion between them based on your prompt.')" style="cursor: pointer; margin-left: 4px; color: var(--accent-violet);"></i>
+                </label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <div class="file-upload-card" onclick="document.getElementById('first_frame').click()">
+                        <p style="font-size: 0.7rem;">First Frame</p>
+                        <input type="file" id="first_frame" hidden accept="image/*" onchange="previewFile(this, 'first_preview')">
+                        <img id="first_preview" class="file-preview">
+                    </div>
+                    <div class="file-upload-card" onclick="document.getElementById('last_frame').click()">
+                        <p style="font-size: 0.7rem;">Last Frame</p>
+                        <input type="file" id="last_frame" hidden accept="image/*" onchange="previewFile(this, 'last_preview')">
+                        <img id="last_preview" class="file-preview">
+                    </div>
+                </div>
+            </div>
+
+            <button id="generateBtn" class="btn-premium btn-primary" style="justify-content: center; margin-top: 1rem;">
+                <i class="fas fa-film"></i> Generate Video
+            </button>
+        </aside>
+
+        <!-- Preview Area -->
+        <section class="preview-area animate-fade-in" style="animation-delay: 0.1s;">
+            <div class="control-group">
+                <label>Cinematic Prompt</label>
+                <textarea id="prompt" class="modern-textarea" rows="4" placeholder="Describe your cinematic masterpiece... (e.g., A slow panning shot of a dragon breathing blue fire in a snow-covered valley)"></textarea>
+            </div>
+
+            <div id="video-display">
+                <div id="placeholder-text" style="color: var(--text-muted); text-align: center;">
+                    <i class="fas fa-clapperboard" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.2;"></i>
+                    <p>Your video will appear here</p>
+                </div>
+                
+                <div class="loading-overlay" id="loading">
+                    <i class="fas fa-circle-notch fa-spin" style="font-size: 3rem; color: var(--accent-violet);"></i>
+                    <p id="loading-status" style="font-weight: 500;">Synthesizing temporal frames...</p>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">This usually takes 60-90 seconds</p>
+                </div>
+
+                <video id="generated-video" controls style="display: none;"></video>
+            </div>
+
+            <div id="action-bar" style="display: none; justify-content: center; gap: 1rem;">
+                <a id="download-link" href="#" download="ai-masterpiece.mp4" class="btn-premium btn-primary">
+                    <i class="fas fa-download"></i> Download Video
+                </a>
+                <button class="btn-premium btn-outline" onclick="location.reload()">
+                    <i class="fas fa-redo"></i> Create New
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 AI Super App Studio | Powered by Gemini Veo 3.1</p>
+    </footer>
 
     <script>
-      document.getElementById("generateBtn").onclick = async function () {
-        const prompt = document.getElementById("prompt").value;
-
-        document.getElementById("loading").style.display = "block";
-        document.getElementById("output").innerHTML = "";
-
-        const userCredits = {{ user.credits }}; // Use Django template variable to get credits
-
-        if (userCredits <= 0) {
-            alert('0 credits left. Please buy premium to generate more images.');
-            window.location.href = 'pricing'; // Redirect to the pricing page
-            return; // Exit the function to prevent further execution
-        }
-        else {
-          const response = await fetch("/generate_video", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt }),
-        });
-
-        const data = await response.json();
-
-        if (data.status === "success") {
-          const videoUrl = data.video_url;
-
-          const videoElement = document.getElementById("generated-video");
-          videoElement.src = videoUrl;
-          videoElement.style.display = "block";
-          document.getElementById("videoSection").style.display = "block";
-
-          const downloadLink = document.getElementById("download-link");
-          downloadLink.href = videoUrl;
-          downloadLink.style.display = "block";
-        } else {
-          document.getElementById("output").innerHTML =
-            "Failed to generate video. Please try again.";
+        function previewFile(input, previewId) {
+            const file = input.files[0];
+            const preview = document.getElementById(previewId);
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
         }
 
-        document.getElementById("loading").style.display = "none";
-
+        async function fileToBase64(file) {
+            if (!file) return null;
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
         }
-      };
+
+        document.getElementById('generateBtn').onclick = async function() {
+            const prompt = document.getElementById('prompt').value;
+            const aspectRatio = document.getElementById('aspect_ratio').value;
+            const resolution = document.getElementById('resolution').value;
+            
+            const refFile = document.getElementById('ref_image').files[0];
+            const firstFile = document.getElementById('first_frame').files[0];
+            const lastFile = document.getElementById('last_frame').files[0];
+
+            if (!prompt.trim()) {
+                alert('Please enter a prompt.');
+                return;
+            }
+
+            const generateBtn = document.getElementById('generateBtn');
+            const loading = document.getElementById('loading');
+            const placeholder = document.getElementById('placeholder-text');
+            const videoElement = document.getElementById('generated-video');
+            const actionBar = document.getElementById('action-bar');
+            const loadingStatus = document.getElementById('loading-status');
+
+            generateBtn.disabled = true;
+            generateBtn.style.opacity = '0.5';
+            placeholder.style.display = 'none';
+            videoElement.style.display = 'none';
+            actionBar.style.display = 'none';
+            loading.style.display = 'flex';
+
+            try {
+                // Prepare form data for images
+                const payload = {
+                    prompt,
+                    aspect_ratio: aspectRatio,
+                    resolution,
+                    ref_image: await fileToBase64(refFile),
+                    first_frame: await fileToBase64(firstFile),
+                    last_frame: await fileToBase64(lastFile)
+                };
+
+                loadingStatus.innerText = "Initiating generation...";
+                const response = await fetch('/generate_video', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Start polling for the video
+                    const operationId = data.operation_id;
+                    pollStatus(operationId);
+                } else {
+                    alert('Error: ' + data.message);
+                    resetUI();
+                }
+            } catch (err) {
+                console.error(err);
+                alert('An error occurred during generation.');
+                resetUI();
+            }
+        };
+
+        async function pollStatus(operationId) {
+            const loadingStatus = document.getElementById('loading-status');
+            let attempts = 0;
+            const maxAttempts = 30; // 5 minutes approx
+
+            const check = async () => {
+                attempts++;
+                loadingStatus.innerText = `Generating frames... (${attempts * 10}s)`;
+                
+                try {
+                    const response = await fetch(`/video_status/${operationId}`);
+                    const data = await response.json();
+
+                    if (data.status === 'done') {
+                        showVideo(data.video_url);
+                    } else if (data.status === 'failed') {
+                        alert('Generation failed: ' + data.message);
+                        resetUI();
+                    } else if (attempts < maxAttempts) {
+                        setTimeout(check, 10000); // Check every 10s
+                    } else {
+                        alert('Generation timed out. Please try again.');
+                        resetUI();
+                    }
+                } catch (err) {
+                    console.error(err);
+                    setTimeout(check, 10000);
+                }
+            };
+
+            check();
+        }
+
+        function showVideo(url) {
+            const videoElement = document.getElementById('generated-video');
+            const loading = document.getElementById('loading');
+            const actionBar = document.getElementById('action-bar');
+            const downloadLink = document.getElementById('download-link');
+
+            loading.style.display = 'none';
+            videoElement.src = url;
+            videoElement.style.display = 'block';
+            actionBar.style.display = 'flex';
+            downloadLink.href = url;
+            
+            document.getElementById('generateBtn').disabled = false;
+            document.getElementById('generateBtn').style.opacity = '1';
+        }
+
+        function resetUI() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('placeholder-text').style.display = 'block';
+            document.getElementById('generateBtn').disabled = false;
+            document.getElementById('generateBtn').style.opacity = '1';
+        }
     </script>
-    <footer>
-      <div class="footer-left">
-        <h2>AI Super App</h2>
-      </div>
-      <div class="footer-right">
-        <a href="#" class="footer-link">Contact</a>
-        <a href="#" class="footer-link">Press</a>
-        <a href="#" class="footer-link">Legal</a>
-        <div class="social-icons">
-          <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-          <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
-        </div>
-      </div>
-    </footer>
-  </body>
+</body>
 </html>

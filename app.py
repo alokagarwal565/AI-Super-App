@@ -8,6 +8,10 @@ import base64
 import subprocess
 
 app = Flask(__name__)
+GEMINI_API_KEY = "AIzaSyC-laNXff6LWfKGaGm0rZFXiJidFXFAhOA"
+VEO_MODEL = "veo-3.1-generate-preview"
+BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'secret_key'
@@ -51,6 +55,12 @@ class User(db.Model):
 
     def check_password(self, password):
         return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
+
+class UserVideo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
 with app.app_context():
     db.create_all()
@@ -229,10 +239,8 @@ def gallery():
         user = User.query.filter_by(email=session['email']).first()
         if user:
             images = [getattr(user, f"image{i}") for i in range(1, 11) if getattr(user, f"image{i}") is not None]
-            if images:
-                return render_template('gallery.html', images=images, user=user)
-            else:
-                return render_template('gallery.html', message="No image saved yet.", user=user)
+            videos = UserVideo.query.filter_by(user_id=user.id).all()
+            return render_template('gallery.html', images=images, videos=videos, user=user)
     
     flash('Please log in to access the gallery.', 'warning')
     return redirect('/login')
@@ -261,6 +269,19 @@ def delete_image():
         db.session.commit()
 
     return redirect('/gallery')
+
+@app.route('/delete_video', methods=['POST'])
+def delete_video():
+    if 'email' in session:
+        user = User.query.filter_by(email=session['email']).first()
+        video_id = request.form.get('video_id')
+        if user and video_id:
+            video = UserVideo.query.filter_by(id=video_id, user_id=user.id).first()
+            if video:
+                db.session.delete(video)
+                db.session.commit()
+    return redirect('/gallery')
+
 
 @app.route('/delete_user', methods=['POST'])
 def delete_user():
@@ -296,51 +317,153 @@ os.makedirs(output_path, exist_ok=True)
 
 @app.route('/generate_video', methods=['POST'])
 def generate_video():
-    # Get the input prompt from the frontend
     data = request.get_json()
     prompt = data.get('prompt')
+    aspect_ratio = data.get('aspect_ratio', '16:9')
+    resolution = data.get('resolution', '720p')
     
-    # Ensure prompt is provided
+    ref_image = data.get('ref_image')
+    first_frame = data.get('first_frame')
+    last_frame = data.get('last_frame')
+
     if not prompt:
         return jsonify({"status": "error", "message": "Prompt is required"}), 400
     
-    # Prepare input for the model
-    input_data = {
-        "seed": 255224557,
-        "n_prompt": "badhandv4, easynegative, ng_deepnegative_v1_75t, verybadimagenegative_v1.3, bad-artist, bad_prompt_version2-neg, teeth",
-        "prompt": prompt
-    }
-    
     user = User.query.filter_by(email=session['email']).first()
+    if user.credits <= 0:
+        return jsonify({"status": "error", "message": "Insufficient credits"}), 403
+    
+    user.credits -= 1
+    db.session.commit()
 
-    if user.credits != 0:
-            # Deduct one credit
-        user.credits -= 1
-        db.session.commit()
+    # Construct Gemini Veo 3.1 Request
+    instance = {"prompt": prompt}
+    parameters = {
+        "aspectRatio": aspect_ratio,
+        "resolution": resolution
+    }
+
+    if ref_image:
+        instance["referenceImages"] = [{
+            "image": {"inlineData": {"mimeType": "image/png", "data": ref_image}},
+            "referenceType": "asset"
+        }]
+    
+    if first_frame:
+        instance["image"] = {"inlineData": {"mimeType": "image/png", "data": first_frame}}
+    
+    if last_frame:
+        parameters["lastFrame"] = {"inlineData": {"mimeType": "image/png", "data": last_frame}}
+
+    payload = {
+        "instances": [instance],
+        "parameters": parameters
+    }
 
     try:
-        # Call replicate model to generate video
-        output = replicate.run(
-            "lucataco/animate-diff:beecf59c4aee8d81bf04f0381033dfa10dc16e845b4ae00d281e2fa377e48a9f",
-            input=input_data
-        )
+        url = f"{BASE_URL}/models/{VEO_MODEL}:predictLongRunning?key={GEMINI_API_KEY}"
+        response = requests.post(url, json=payload)
+        
+        print(f"DEBUG: Veo Predict Request Status: {response.status_code}")
+        
+        if response.status_code != 200:
+            print(f"DEBUG: Veo Predict Error: {response.text}")
+            return jsonify({"status": "error", "message": f"API Error {response.status_code}: {response.text}"}), 500
 
-        # Save the video output to file
-        video_path = os.path.join(output_path, 'output.mp4')
-        with open(video_path, "wb") as file:
-            file.write(output.read())
+        res_data = response.json()
+        print(f"DEBUG: Veo Predict Response: {res_data}")
 
-        # Return the URL to the video
-        video_url = f"/generated_videos/output.mp4"
-        return jsonify({"status": "success", "video_url": video_url})
+        if "name" in res_data:
+            return jsonify({
+                "status": "success", 
+                "operation_id": res_data["name"]
+            })
+        else:
+            return jsonify({"status": "error", "message": res_data.get("error", {}).get("message", "API Error")}), 500
 
     except Exception as e:
+        print(f"DEBUG: Exception in generate_video: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/video_status/<path:operation_id>')
+def video_status(operation_id):
+    try:
+        url = f"{BASE_URL}/{operation_id}?key={GEMINI_API_KEY}"
+        response = requests.get(url)
+        
+        if response.status_code != 200:
+            print(f"DEBUG: Operation Status Error {response.status_code}: {response.text}")
+            return jsonify({"status": "failed", "message": f"API Error {response.status_code}"})
+
+        data = response.json()
+        
+        if data.get("done"):
+            # Operation complete
+            if "error" in data:
+                return jsonify({"status": "failed", "message": data["error"]["message"]})
+            
+            # Extract video URI
+            try:
+                res = data.get("response", {})
+                # Try all possible keys for the video samples
+                samples = res.get("generateVideoResponse", {}).get("generatedSamples", [])
+                if not samples:
+                    samples = res.get("generatedVideos", [])
+                if not samples:
+                    samples = res.get("videoSamples", [])
+                
+                # Download the video
+                # Check if URI already has parameters
+                if not samples:
+                    print(f"DEBUG: No samples found in response: {data}")
+                    return jsonify({"status": "failed", "message": "No video samples in response"})
+
+                video_uri = samples[0].get("video", {}).get("uri")
+                
+                # Download the video
+                # Check if URI already has parameters
+                sep = "&" if "?" in video_uri else "?"
+                video_res = requests.get(f"{video_uri}{sep}key={GEMINI_API_KEY}", stream=True)
+                
+                if video_res.status_code != 200:
+                    print(f"DEBUG: Video Download Error {video_res.status_code}: {video_res.text}")
+                    return jsonify({"status": "failed", "message": f"Download Error {video_res.status_code}"})
+
+                # Sanitize filename (replace slashes with underscores)
+                safe_id = operation_id.replace('/', '_')
+                video_filename = f"veo_{safe_id}.mp4"
+                video_save_path = os.path.join(output_path, video_filename)
+                
+                with open(video_save_path, 'wb') as f:
+                    for chunk in video_res.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                
+                # Auto-save to database
+                user = User.query.filter_by(email=session['email']).first()
+                new_video = UserVideo(user_id=user.id, filename=video_filename)
+                db.session.add(new_video)
+                db.session.commit()
+
+                return jsonify({
+                    "status": "done", 
+                    "video_url": f"/generated_videos/{video_filename}"
+                })
+            except Exception as e:
+                print(f"DEBUG: Exception in status download: {str(e)}")
+                return jsonify({"status": "failed", "message": f"Error downloading video: {str(e)}"})
+        
+        return jsonify({"status": "pending"})
+
+    except Exception as e:
+        print(f"DEBUG: Exception in video_status: {str(e)}")
+        return jsonify({"status": "failed", "message": str(e)})
+
 
 # Serve the generated video file
 @app.route('/generated_videos/<filename>')
 def serve_video(filename):
     return send_from_directory(output_path, filename)
+
 
 @app.route('/start_chatbot')
 def start_chatbot():

@@ -1,204 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Super App</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Super App | Your All-in-One Creativity Suite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern_styles.css') }}">
     <style>
-      body {
-        margin: 0;
-        font-family: "Roboto", sans-serif;
-        background: linear-gradient(180deg, #0b0d17 0%, #1c1f2e 100%);
-        color: #fff;
-        text-align: center;
-      }
-      .navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px 30px;
-        background-color: rgba(11, 13, 23, 0.85);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-      }
-      .navbar .logo {
-        font-size: 28px;
-        font-weight: bold;
-        color: #a259ff;
-      }
-      .navbar .menu {
-        display: flex;
-        gap: 30px;
-      }
-      .navbar .menu a {
-        color: #fff;
-        text-decoration: none;
-        font-size: 16px;
-        position: relative;
-      }
-      .navbar .menu a::after {
-        content: "";
-        display: block;
-        height: 2px;
-        background: #a259ff;
-        width: 0;
-        transition: width 0.3s;
-        position: absolute;
-        bottom: -5px;
-        left: 50%;
-        transform: translateX(-50%);
-      }
-      .navbar .menu a:hover::after {
-        width: 100%;
-      }
-      .header {
-        padding: 120px 20px;
-      }
-      .header h1 {
-        font-size: 64px;
-        background: linear-gradient(90deg, #a259ff, #0acf83, #2d9cdb);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 0;
-      }
-      .header h2 {
-        font-size: 28px;
-        margin: 15px 0;
-        letter-spacing: 1px;
-      }
-      .header p {
-        font-size: 20px;
-        max-width: 700px;
-        margin: 0 auto 40px;
-        line-height: 1.6;
-        opacity: 0.9;
-      }
-      .header .buttons {
-        display: flex;
-        justify-content: center;
-        gap: 25px;
-      }
-      .header .buttons a {
-        padding: 12px 25px;
-        border: 2px solid #a259ff;
-        border-radius: 30px;
-        color: #a259ff;
-        text-decoration: none;
-        font-size: 18px;
-        background-color: transparent;
-        transition: all 0.3s;
-      }
-      .header .buttons a:hover {
-        background-color: #a259ff;
-        color: #0b0d17;
-      }
-      footer {
-        margin-top: 50px;
-        padding: 20px;
-        background-color: rgba(11, 13, 23, 0.85);
-      }
-      footer p {
-        font-size: 16px;
-        margin: 0;
-      }
+        .hero {
+            padding: 160px 20px 80px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto 3rem;
+        }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto 100px;
+            padding: 0 20px;
+        }
+        .service-card {
+            padding: 2.5rem;
+            border-radius: 24px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .service-card:hover {
+            transform: translateY(-10px);
+            background: rgba(30, 41, 59, 0.9);
+            border-color: var(--accent-violet);
+        }
+        .service-card i {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent-violet), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .service-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .service-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .btn-card {
+            margin-top: auto;
+            color: var(--accent-violet);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .footer {
+            padding: 60px 20px;
+            border-top: 1px solid var(--border-glass);
+            text-align: center;
+            color: var(--text-muted);
+        }
     </style>
-  </head>
-  <body>
-    <div class="navbar">
-      <div class="logo">AI Super App</div>
-      <div class="menu">
-        <a href="register">Sign Up</a>
-        <a href="login">Log In</a>
-        <a href="pricing">Try Premium</a>
-        <a href="#"><i class="fas fa-bell"></i></a>
-        <a href="#"><i class="fas fa-bars"></i></a>
-      </div>
-    </div>
-    <div class="header">
-      <h2>Unleash Your Creativity</h2>
-      <h1>Bring Your Imagination to Life with AI</h1>
-      <h2>AI Tools for Image Creation, Video Generation, and Intelligent Chat</h2>
-      <p>
-        Discover an all-in-one AI suite built for creators, professionals, and innovators. Generate stunning visuals, craft engaging videos, design sleek portfolios, and interact with a smart AI assistant—all from your browser, smartphone, or desktop. Completely free. The only limit is your imagination!
-      </p>
-      <div class="buttons">
-        <a href="dashboard">Explore AI Image Generator</a>
-        <a href="gen_video">Explore AI Video Generator</a>
-        <a href="#" onclick="startChatbot()">Try Our AI Chatbot</a>
-        <a href="#" onclick="startPortfolio()">AI Portfolio Generator</a>
-        <a href="http://127.0.0.1:50641/index.html" target="_blank" rel="noopener noreferrer" aria-label="AI Document RAG System">AI Document RAG System</a>
-      </div>
+</head>
+<body>
+    <div class="blob"></div>
+    <div class="blob" style="top: 60%; left: 70%; background: var(--accent-blue);"></div>
 
-      <script>
+    <nav class="nav-container">
+        <div class="nav-logo glow-text">AI Super App</div>
+        <div class="nav-menu">
+            <a href="pricing" class="nav-link">Pricing</a>
+            <a href="login" class="nav-link">Log In</a>
+            <a href="register" class="btn-premium btn-primary">Get Started <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero animate-fade-in">
+            <h1 class="glow-text">Bring Your <br> Imagination to Life</h1>
+            <p>An all-in-one AI suite built for creators. Generate stunning visuals, craft engaging videos, design portfolios, and chat with intelligence—all in one place.</p>
+            <div style="display: flex; gap: 1.5rem; justify-content: center;">
+                <a href="#explore" class="btn-premium btn-primary shadow-lg">Start Creating Free</a>
+                <a href="pricing" class="btn-premium btn-outline">Explore Pro Plans</a>
+            </div>
+        </section>
+
+        <section id="explore" class="services-grid animate-fade-in" style="animation-delay: 0.2s;">
+            <a href="dashboard" class="service-card glass">
+                <i class="fas fa-image"></i>
+                <h3>AI Image Generator</h3>
+                <p>Create breathtaking artwork and realistic photos from simple text descriptions in seconds.</p>
+                <span class="btn-card">Launch Studio <i class="fas fa-chevron-right"></i></span>
+            </a>
+
+            <a href="gen_video" class="service-card glass">
+                <i class="fas fa-video"></i>
+                <h3>AI Video Creator</h3>
+                <p>Transform your stories into cinematic videos. Perfect for social media, marketing, and fun.</p>
+                <span class="btn-card">Open Creator <i class="fas fa-chevron-right"></i></span>
+            </a>
+
+            <a href="#" onclick="startChatbot()" class="service-card glass">
+                <i class="fas fa-robot"></i>
+                <h3>Intelligent Chatbot</h3>
+                <p>Your 24/7 AI companion for brainstorming, coding, writing, and problem-solving.</p>
+                <span class="btn-card">Start Chatting <i class="fas fa-chevron-right"></i></span>
+            </a>
+
+            <a href="#" onclick="startPortfolio()" class="service-card glass">
+                <i class="fas fa-briefcase"></i>
+                <h3>AI Portfolio Builder</h3>
+                <p>Generate a professional, high-performance portfolio website instantly from your resume.</p>
+                <span class="btn-card">Build Site <i class="fas fa-chevron-right"></i></span>
+            </a>
+
+            <a href="http://127.0.0.1:50641/index.html" target="_blank" class="service-card glass">
+                <i class="fas fa-file-alt"></i>
+                <h3>AI Document RAG</h3>
+                <p>Interact with your documents using advanced RAG. Ask questions and extract insights easily.</p>
+                <span class="btn-card">Analyze Docs <i class="fas fa-chevron-right"></i></span>
+            </a>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="nav-logo glow-text" style="margin-bottom: 1rem;">AI Super App</div>
+        <p>&copy; 2026 AI Super App. Built for the next generation of creators.</p>
+        <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 2rem;">
+            <a href="#" class="nav-link"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="nav-link"><i class="fab fa-github"></i></a>
+            <a href="#" class="nav-link"><i class="fab fa-linkedin"></i></a>
+        </div>
+    </footer>
+
+    <script>
         function startChatbot() {
-          <!--
-          setTimeout(() => {
             const chatbotUrl = "http://localhost:5173/";
             window.open(chatbotUrl, "_blank");
-          }, 3000);
-          -->
-
-          // Open the chatbot in a new tab immediately
-          const chatbotUrl = "http://localhost:5173/";
-          window.open(chatbotUrl, "_blank");
-
-          // Make the fetch request to start the chatbot
-          fetch("/start_chatbot")
-            .then((response) => {
-              // Check if the response is okay
-              if (!response.ok) {
-                throw new Error("Network response was not ok");
-              }
-              return response.json();
-            })
-            .then((data) => {
-              if (data.status !== "success") {
-                console.error("Failed to start the chatbot:", data.message);
-                alert("Failed to start the chatbot. Please try again.");
-              }
-            })
-            .catch((error) => {
-              console.error("Error starting chatbot:", error);
-              alert("There was an error starting the chatbot.");
-            });
+            fetch("/start_chatbot").catch(err => console.error(err));
         }
 
         function startPortfolio() {
-          // Open the portfolio generator in a new tab immediately
-          const portfolioUrl = "http://localhost:3000/generate-portfolio";
-          window.open(portfolioUrl, "_blank");
-
-          // Make the fetch request to start the portfolio generator
-          fetch("/start_portfolio")
-            .then((response) => {
-              // Check if the response is okay
-              if (!response.ok) {
-                throw new Error("Network response was not ok");
-              }
-              return response.json();
-            })
-            .then((data) => {
-              if (data.status !== "success") {
-                console.error("Failed to start the portfolio generator:", data.message);
-                alert("Failed to start the portfolio generator. Please try again.");
-              }
-            })
-            .catch((error) => {
-              console.error("Error starting portfolio generator:", error);
-              alert("There was an error starting the portfolio generator.");
-            });
+            const portfolioUrl = "http://localhost:3000/generate-portfolio";
+            window.open(portfolioUrl, "_blank");
+            fetch("/start_portfolio").catch(err => console.error(err));
         }
-      </script>
-    </div>
-    <footer>
-      <p>&copy; 2025 AI Super App. All rights reserved.</p>
-    </footer>
-  </body>
+    </script>
+</body>
 </html>

@@ -1,504 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Image Generator</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-    />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Generator | AI Super App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern_styles.css') }}">
     <style>
-      /* Global styling */
-      body {
-        background-color: #0a0e17; /* Dark background */
-        color: #d9e0ff; /* Soft white text */
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
-        text-align: center;
-        padding: none;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
-
-      /* Navigation Bar */
-      nav {
-        display: flex;
-        justify-content: space-between;
-        padding: 20px;
-        background: linear-gradient(
-          135deg,
-          #1f2933 0%,
-          #141a23 100%
-        ); /* Gradient for futuristic look */
-        border-bottom: 1px solid #00f6ff; /* Neon accent */
-      }
-      nav h1 {
-        color: #00f6ff;
-        font-weight: bold;
-      }
-      nav a {
-        text-decoration: none;
-        color: #00f6ff;
-        font-weight: 600;
-        transition: color 0.3s ease;
-      }
-      nav a:hover {
-        color: #a2e2ff;
-      }
-
-      /* Container */
-      .container {
-        max-width: 600px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      /* Inputs and Button */
-      input,
-      button {
-        padding: 15px;
-        margin: 10px 0;
-        border-radius: 10px;
-        border: 1px solid #00f6ff;
-        font-size: 16px;
-        width: 100%;
-        background-color: #1a2233;
-        color: #d9e0ff;
-        transition: all 0.3s;
-      }
-      input:focus,
-      button:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 8px rgba(0, 246, 255, 0.5);
-      }
-      button {
-        background-color: #00f6ff;
-        color: #141a23;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-      button:hover {
-        background-color: #007bff;
-      }
-
-      /* Button Styling */
-      .button {
-        padding: 15px;
-        margin: 10px 10px;
-        border-radius: 10px;
-        border: 1px solid #00f6ff;
-        font-size: 16px;
-        width: 150px;
-        background-color: #00f6ff;
-        color: #141a23;
-        font-weight: bold;
-        cursor: pointer;
-        text-align: center;
-        transition: background-color 0.3s ease;
-        text-decoration: none; /* Remove underline for download button */
-        display: inline-block; /* Ensures correct layout for download link */
-      }
-
-      .button:hover {
-        background-color: #007bff;
-      }
-
-      /* Loading Animation */
-      #loading {
-        display: none;
-        font-size: 24px;
-        color: #00f6ff;
-      }
-
-      /* Image Output Styling */
-      img {
-        max-width: 100%;
-        height: auto;
-        border: 2px solid #00f6ff;
-        border-radius: 12px;
-        transition: box-shadow 0.3s;
-      }
-      img:hover {
-        box-shadow: 0 0 15px #00f6ff;
-      }
-
-      /* Icon Buttons */
-      .icon-button {
-        display: inline-block;
-        padding: 10px;
-        border-radius: 50%;
-        background-color: #00f6ff;
-        color: #0a0e17;
-        margin: 10px;
-        cursor: pointer;
-        text-align: center;
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-        transition: background-color 0.3s;
-      }
-      .icon-button:hover {
-        background-color: #007bff;
-      }
-
-      /* Footer Styling */
-      footer {
-        margin-top: 110px;
-        padding: 20px;
-        background-color: #141a23;
-        color: #a2e2ff;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 14px;
-      }
-
-      footer h2 {
-        font-size: 18px;
-        color: #00f6ff;
-      }
-
-      .footer-right {
-        display: flex;
-        align-items: center;
-      }
-
-      .footer-link {
-        color: #00f6ff;
-        text-decoration: none;
-        margin: 0 10px; /* Added margin for spacing between links */
-        transition: color 0.3s;
-      }
-
-      .footer-link:hover {
-        color: #a2e2ff;
-      }
-
-      .social-icons {
-        display: flex;
-        align-items: center;
-        margin-left: 10px; /* Space between links and social icons */
-      }
-
-      .social-icon {
-        color: #a2e2ff;
-        margin: 0 10px;
-        font-size: 18px;
-        transition: color 0.3s;
-      }
-
-      .social-icon:hover {
-        color: #00f6ff;
-      }
-
-      /* Profile Dropdown */
-      .profile-dropdown {
-        position: relative;
-        display: inline-block;
-        margin-left: 10px;
-      }
-      .dropdown-content {
-        display: none;
-        position: absolute;
-        right: 0;
-        background-color: #1a2233;
-        min-width: 150px;
-        padding: 10px;
-        border-radius: 10px;
-        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-      }
-      .profile-dropdown:hover .dropdown-content {
-        display: block;
-      }
-      .dropdown-content p,
-      .dropdown-content a {
-        color: #d9e0ff;
-        padding: 8px;
-      }
-      .dropdown-content a:hover {
-        background-color: #333b44;
-        color: #00f6ff;
-      }
-      
-      /* Wrapper for HF LoRA */
-      .hf-lora-wrapper {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start; /* Matches the layout of the prompt field */
-        width: 100%; /* Matches container width */
-        margin: 10px 0;
-      }
-      
-      /* HF LoRA field styling */
-      #hf_lora {
-        width: 100%; /* Matches prompt field width */
-        height: auto; /* Ensure it adjusts */
-        padding: 15px; /* Same as prompt field */
-        margin: 10px 0; /* Same vertical spacing */
-        border-radius: 10px; /* Rounded corners */
-        border: 1px solid #00f6ff; /* Same border color */
-        font-size: 16px; /* Same font size */
-        background-color: #1a2233; /* Matches prompt field background */
-        color: #d9e0ff; /* Matches text color */
-        box-sizing: border-box; /* Include padding and border in width/height */
-        transition: all 0.3s; /* Smooth transitions */
-      }
-      
-      /* Focus effect */
-      #hf_lora:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 8px rgba(0, 246, 255, 0.5);
-      }     
-      
-      #trainFaceBtn {
-        display: none; /* Initially hidden */
-        position: absolute; /* Places the button beside the input field */
-        right: -165px; /* Adjust to ensure it appears correctly beside the field */
-        top: 5px; /* Ensure proper vertical alignment */
-        padding: 10px 20px; /* Adjust padding to make it smaller horizontally */
-        width: auto; /* Ensure the button width adjusts to content size */
-    }
-    
-      
-      .hf-lora-wrapper:hover #trainFaceBtn {
-        display: block; /* Show the button on hover */
-      }      
-      
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .control-panel {
+            padding: 3rem;
+            border-radius: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .input-group label {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-left: 0.5rem;
+        }
+        .modern-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-glass);
+            padding: 1.25rem;
+            border-radius: 16px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .modern-input:focus {
+            outline: none;
+            border-color: var(--accent-violet);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+        #output {
+            margin-top: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        #output img {
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            max-width: 100%;
+            border: 1px solid var(--border-glass);
+        }
+        .action-bar {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .profile-chip {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            background: var(--border-glass);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
     </style>
-  </head>
-  <body>
-    <nav>
-      <h1>AI Super App</h1>
-      <div style="display: flex; align-items: center">
-        <b>User:&nbsp</b> {{ user.name }}
-        <div class="profile-dropdown">
-          <span class="profile-icon">|&nbsp;Manage Account 👤&nbsp;</span>
-          <!-- Profile Icon -->
-          <div class="dropdown-content">
-            <p><b>Email:</b> {{ user.email }}</p>
-            <p><b>Credits:</b> {{ user.credits }}</p>
-            <!-- Display Credits -->
-            <a href="/gallery">Gallery</a>
-            <!-- Link to Gallery -->
-            <form action="/delete_user" method="POST" style="display: inline">
-              <button
-                type="submit"
-                class="download-btn"
-                style="background-color: #dc3545"
-              >
-                Delete Account
-              </button>
-            </form>
-          </div>
+</head>
+<body>
+    <div class="blob"></div>
+    
+    <nav class="nav-container">
+        <div class="nav-logo glow-text">AI Image Gen</div>
+        <div class="nav-menu">
+            <div class="profile-chip">
+                <i class="fas fa-coins text-yellow-400"></i>
+                <span>{{ user.credits }} Credits</span>
+            </div>
+            <a href="/gallery" class="nav-link">Gallery</a>
+            <a href="/home" class="nav-link">Home</a>
+            <a href="/logout" class="btn-premium btn-outline" style="padding: 0.5rem 1rem;">Logout</a>
         </div>
-        | <a href="/logout" class="btn btn-dark">&nbspLogout&nbsp</a> |
-        <a href="/chatbot" onclick="startChatbot(event)">&nbsp;Chatbot&nbsp</a>
-        <a href="/portfolio" onclick="startPortfolio(event)">&nbsp;Portfolio Generator&nbsp;</a>
-        <a href="pricing">&nbsp;Try Premium&nbsp;</a>
-        | <a href="home">&nbspHome&nbsp</a>
-      </div>
     </nav>
 
-    {% if login_success %}
-    <div class="text-center mt-3">
-      <div
-        class="alert alert-success alert-dismissible fade show mx-auto"
-        style="width: 80%"
-        role="alert"
-      >
-        {{ login_success }}
-        <button
-          type="button"
-          class="close"
-          data-dismiss="alert"
-          aria-label="Close"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    </div>
-    {% endif %}
+    <main class="dashboard-container">
+        <header class="text-center mb-12 animate-fade-in">
+            <h1 class="glow-text" style="font-size: 3rem; font-weight: 800; margin-bottom: 1rem;">Create Visual Magic</h1>
+            <p style="color: var(--text-muted); font-size: 1.1rem;">Transform your thoughts into stunning high-fidelity images.</p>
+        </header>
 
-    <div class="container">
-      <h1><br /><br />AI Image Generator</h1>
-      <h5>
-        This is an AI Image Generator. It creates an image from scratch from a
-        text description.
-      </h5>
-      <input type="text" id="prompt" placeholder="Enter your prompt" required />
-      <div class="hf-lora-wrapper">
-        <input
-          type="text"
-          id="hf_lora"
-          placeholder="Enter your Face's HF Lora Model for custom images"
-          required
-        />
-        <button id="trainFaceBtn" class="btn" onclick="window.open('https://forms.gle/fLapBTz7VM8jhnAV8', '_blank')">Train Your Face</button>
-      </div>
-      <button id="generateBtn" class="btn">Generate Image</button>
-      <div id="loading">
-        <i class="fas fa-spinner fa-spin"></i> Generating...
-      </div>
-      <div id="output"></div>
-    </div>    
+        <div class="control-panel glass animate-fade-in" style="animation-delay: 0.1s;">
+            <div class="input-group">
+                <label>Prompt</label>
+                <textarea id="prompt" class="modern-input" rows="3" placeholder="Describe the image you want to create..."></textarea>
+            </div>
+
+            <div class="input-group">
+                <label>Face LoRA (Optional)</label>
+                <div style="display: flex; gap: 1rem;">
+                    <input type="text" id="hf_lora" class="modern-input" style="flex: 1;" placeholder="Enter HuggingFace LoRA model path...">
+                    <button class="btn-premium btn-outline" onclick="window.open('https://forms.gle/fLapBTz7VM8jhnAV8', '_blank')">Train Face</button>
+                </div>
+            </div>
+
+            <button id="generateBtn" class="btn-premium btn-primary" style="justify-content: center; padding: 1.25rem;">
+                <i class="fas fa-sparkles"></i> Generate Masterpiece
+            </button>
+
+            <div id="loading" style="display: none; text-align: center;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--accent-violet);"></i>
+                <p style="margin-top: 1rem; color: var(--text-muted);">Summoning pixels...</p>
+            </div>
+
+            <div id="output"></div>
+        </div>
+    </main>
 
     <script>
-      document.getElementById('generateBtn').onclick = async function() {
-          const prompt = document.getElementById('prompt').value;
-          const hf_lora = document.getElementById('hf_lora').value;
-          document.getElementById('loading').style.display = 'block';
-          document.getElementById('output').innerHTML = '';
-          // Check if user has zero credits
-          const userCredits = {{ user.credits }}; // Use Django template variable to get credits
+        document.getElementById('generateBtn').onclick = async function() {
+            const prompt = document.getElementById('prompt').value;
+            const hf_lora = document.getElementById('hf_lora').value;
+            const generateBtn = document.getElementById('generateBtn');
+            const loading = document.getElementById('loading');
+            const output = document.getElementById('output');
 
-          if (userCredits <= 0) {
-              alert('0 credits left. Please buy premium to generate more images.');
-              window.location.href = 'pricing'; // Redirect to the pricing page
-              return; // Exit the function to prevent further execution
-          }
-          else {
-          const response = await fetch('/generate', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ prompt, hf_lora })
-          });
-
-          const data = await response.json();
-
-          if (data.status === 'success') {
-              const img = document.createElement('img');
-              img.src = data.image_url + '?t=' + new Date().getTime();
-              document.getElementById('output').appendChild(img);
-
-              // Container for buttons
-              const buttonContainer = document.createElement('div');
-              buttonContainer.className = 'button-container';
-
-              // Create save button
-              const saveBtn = document.createElement('button');
-              saveBtn.innerText = 'Save Image';
-              saveBtn.className = 'button'; // Apply button class
-              saveBtn.style.width = '150px'; // Optional for specific width
-
-              // Get user email from the profile section
-              const userEmail = '{{ user.email }}'; // Use Django template variable to get email
-
-              // Save image function
-              saveBtn.onclick = async function() {
-                  const saveResponse = await fetch('/save_image', {
-                      method: 'POST',
-                      headers: {
-                          'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify({
-                          email: userEmail,
-                          image_url: img.src
-                      })
-                  });
-
-                  const saveData = await saveResponse.json();
-                  if (saveData.status === 'success') {
-                      alert('Image saved successfully!');
-                  } else {
-                      alert('All image slots are full. Buy premium to save more images.');
-                  }
-              };
-
-              // Append save button to output element
-              document.getElementById('output').appendChild(saveBtn);
-
-              // Create download button
-              const downloadBtn = document.createElement('a');
-              downloadBtn.href = img.src; // Ensure img.src is defined
-              downloadBtn.download = 'generated_image.png';
-              downloadBtn.innerText = 'Download Image';
-              downloadBtn.className = 'button'; // Apply button class
-              downloadBtn.style.width = '150px'; // Optional for specific width
-              downloadBtn.style.textDecoration = 'none'; // Remove underline
-
-              // Append button to output element
-              document.getElementById('output').appendChild(downloadBtn);
-
-              // Create share buttons
-              const twitterShare = document.createElement('a');
-              twitterShare.className = 'icon-button';
-              twitterShare.innerHTML = '<i class="fab fa-twitter"></i>';
-              twitterShare.href = `https://twitter.com/intent/tweet?url=${img.src}&text=Check%20out%20this%20AI-generated%20image!`;
-              twitterShare.target = '_blank';
-              document.getElementById('output').appendChild(twitterShare);
-
-              const whatsappShare = document.createElement('a');
-              whatsappShare.className = 'icon-button';
-              whatsappShare.innerHTML = '<i class="fab fa-whatsapp"></i>';
-              whatsappShare.href = `https://api.whatsapp.com/send?text=Check%20out%20this%20AI-generated%20image!%20${img.src}`;
-              whatsappShare.target = '_blank';
-              document.getElementById('output').appendChild(whatsappShare);
-          } else {
-              document.getElementById('output').innerHTML = 'Failed to generate image. Please try again.';
-          }
-
-          document.getElementById('loading').style.display = 'none';
-          }
-      };
-
-      function startChatbot(event) {
-        event.preventDefault();
-        fetch('/start_chatbot')
-          .then(response => response.json())
-          .then(data => {
-            if (data.status === 'success') {
-              window.open(data.chatbot_url, '_blank');
-            } else {
-              alert('Error starting chatbot: ' + data.message);
+            if (!prompt.trim()) {
+                alert('Please enter a prompt.');
+                return;
             }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while starting the chatbot.');
-          });
-      }
 
-      function startPortfolio(event) {
-        event.preventDefault();
-        fetch('/start_portfolio')
-          .then(response => response.json())
-          .then(data => {
-            if (data.status === 'success') {
-              window.open(data.portfolio_url, '_blank');
-            } else {
-              alert('Error starting AI Portfolio Generator: ' + data.message);
+            const userCredits = {{ user.credits }};
+            if (userCredits <= 0) {
+                alert('0 credits left. Please buy premium to generate more images.');
+                window.location.href = 'pricing';
+                return;
             }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while starting the AI Portfolio Generator.');
-          });
-      }
+
+            generateBtn.style.display = 'none';
+            loading.style.display = 'block';
+            output.innerHTML = '';
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, hf_lora })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    const img = document.createElement('img');
+                    img.src = data.image_url + '?t=' + new Date().getTime();
+                    output.appendChild(img);
+
+                    const actionBar = document.createElement('div');
+                    actionBar.className = 'action-bar animate-fade-in';
+
+                    const saveBtn = document.createElement('button');
+                    saveBtn.className = 'btn-premium btn-primary';
+                    saveBtn.innerHTML = '<i class="fas fa-save"></i> Save to Cloud';
+                    saveBtn.onclick = async () => {
+                        const saveResponse = await fetch('/save_image', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: '{{ user.email }}', image_url: img.src })
+                        });
+                        const saveData = await saveResponse.json();
+                        if (saveData.status === 'success') alert('Saved successfully!');
+                        else alert('Gallery full! Upgrade for more slots.');
+                    };
+
+                    const downloadBtn = document.createElement('a');
+                    downloadBtn.href = img.src;
+                    downloadBtn.download = 'ai-generation.png';
+                    downloadBtn.className = 'btn-premium btn-outline';
+                    downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
+
+                    actionBar.appendChild(saveBtn);
+                    actionBar.appendChild(downloadBtn);
+                    output.appendChild(actionBar);
+                } else {
+                    output.innerHTML = '<p style="color: #ef4444;">Failed to generate image. Please try again.</p>';
+                }
+            } catch (err) {
+                console.error(err);
+                output.innerHTML = '<p style="color: #ef4444;">An error occurred.</p>';
+            } finally {
+                generateBtn.style.display = 'flex';
+                loading.style.display = 'none';
+            }
+        };
     </script>
-
-    <footer>
-      <div class="footer-left">
-        <h2>AI Super App</h2>
-      </div>
-      <div class="footer-right">
-        <a href="#" class="footer-link">Contact</a>
-        <a href="#" class="footer-link">Press</a>
-        <a href="#" class="footer-link">Legal</a>
-        <div class="social-icons">
-          <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-          <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
-        </div>
-      </div>
+    <footer class="footer">
+        <p>&copy; 2026 AI Super App Studio.</p>
     </footer>
-  </body>
+</body>
 </html>

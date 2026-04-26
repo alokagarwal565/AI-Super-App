@@ -6,7 +6,6 @@ import ReactMarkdown from "react-markdown";
 function App() {
   const [chatHistory, setChatHistory] = useState([]);
   const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
   const [generatingAnswer, setGeneratingAnswer] = useState(false);
 
   const chatContainerRef = useRef(null);
@@ -19,30 +18,36 @@ function App() {
 
   async function generateAnswer(e) {
     e.preventDefault();
-    if (!question.trim()) return;
+    if (!question.trim() || generatingAnswer) return;
     
     setGeneratingAnswer(true);
     const currentQuestion = question;
-    setQuestion(""); // Clear input immediately after sending
+    setQuestion(""); 
     
-    // Add user question to chat history
     setChatHistory(prev => [...prev, { type: 'question', content: currentQuestion }]);
     
     try {
+      const contents = chatHistory.map(msg => ({
+        role: msg.type === 'question' ? 'user' : 'model',
+        parts: [{ text: msg.content }]
+      }));
+      
+      contents.push({
+        role: 'user',
+        parts: [{ text: currentQuestion }]
+      });
+
       const response = await axios({
-        url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyAVp8yDTE5qjjqJKg2tCvAdgQOJmxna-M4`,
+        url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
         method: "post",
-        data: {
-          contents: [{ parts: [{ text: question }] }],
-        },
+        data: { contents },
       });
 
       const aiResponse = response["data"]["candidates"][0]["content"]["parts"][0]["text"];
       setChatHistory(prev => [...prev, { type: 'answer', content: aiResponse }]);
-      setAnswer(aiResponse);
     } catch (error) {
       console.log(error);
-      setAnswer("Sorry - Something went wrong. Please try again!");
+      setChatHistory(prev => [...prev, { type: 'answer', content: "Sorry - Something went wrong. Please try again!" }]);
     }
     setGeneratingAnswer(false);
   }
