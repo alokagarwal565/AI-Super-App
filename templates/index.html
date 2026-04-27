@@ -25,14 +25,17 @@
             margin: 0 auto 3rem;
         }
         .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
             gap: 2rem;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto 100px;
             padding: 0 20px;
+            justify-content: center;
         }
         .service-card {
+            flex: 1 1 350px;
+            max-width: 400px;
             padding: 2.5rem;
             border-radius: 24px;
             text-decoration: none;
@@ -234,6 +237,20 @@
                 <h3>AI Document RAG</h3>
                 <p>Interact with your documents using advanced RAG. Ask questions and extract insights easily.</p>
                 <span class="btn-card">Analyze Docs <i class="fas fa-chevron-right"></i></span>
+            </a>
+
+            <a href="#" class="service-card glass">
+                <i class="fas fa-th-large"></i>
+                <h3>AI Multi-App Workspace</h3>
+                <p>Control a drawing canvas, task manager, and layout builder using natural language or voice. Create shapes and manage tasks with real-time AI.</p>
+                <span class="btn-card">Launch Workspace <i class="fas fa-chevron-right"></i></span>
+            </a>
+
+            <a href="#" class="service-card glass">
+                <i class="fas fa-brain"></i>
+                <h3>AI Thinking-to-Content Engine</h3>
+                <p>Capture raw ideas, refine them with AI, structure mind maps, and generate platform-ready content after strategic planning.</p>
+                <span class="btn-card">Start Thinking <i class="fas fa-chevron-right"></i></span>
             </a>
         </section>
     </main>
